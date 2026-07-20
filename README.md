@@ -9,14 +9,14 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 
   <style>
-    /* ---------- Глобальные стили ---------- */
+    
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
     body { background:#000; overflow-x:hidden; color:#fff; }
     canvas { position:fixed; inset:0; z-index:-2; }
     #noise { position:fixed; inset:0; pointer-events:none; opacity:.06; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"); mix-blend-mode:overlay; z-index:-1; }
     .cursorGlow { position:fixed; width:500px; height:500px; border-radius:50%; pointer-events:none; background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%); transform:translate(-50%,-50%); z-index:-1; }
 
-    /* ---------- Навигация ---------- */
+   
     nav {
       position: fixed;
       top: 0;
@@ -33,41 +33,139 @@
     }
     .logo { font-size:24px; font-weight:900; letter-spacing:3px; background:linear-gradient(135deg,#fff,#aaa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
     .nav-links { display:flex; gap:40px; align-items:center; }
-    .nav-links a { color:rgba(255,255,255,0.7); text-decoration:none; font-weight:500; font-size:16px; transition:.3s; position:relative; }
+    .nav-links a { color:rgba(255,255,255,0.7); text-decoration:none; font-weight:500; font-size:16px; transition:.3s; position:relative; cursor:pointer; }
     .nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px; background:#fff; transition:.3s; }
     .nav-links a:hover { color:#fff; }
     .nav-links a:hover::after { width:100%; }
     .nav-links .auth-link { cursor:pointer; }
 
-    /* ---------- Хедер ---------- */
+
     header { height:100vh; display:flex; justify-content:center; align-items:center; flex-direction:column; text-align:center; position:relative; padding-top:80px; }
     h1 { font-size:80px; font-weight:900; letter-spacing:8px; animation:glitch 5s infinite; }
     .subtitle { margin-top:20px; opacity:.75; font-size:20px; }
     .btn-primary { margin-top:50px; padding:20px 60px; font-size:20px; border:none; cursor:pointer; background:#fff; color:#000; font-weight:700; border-radius:50px; transition:.3s; }
     .btn-primary:hover { transform:scale(1.1); box-shadow:0 0 80px rgba(255,255,255,0.7); }
 
-    /* ---------- Секции ---------- */
-    section { padding:120px 10% 80px; }
+
+    section { padding:120px 10% 80px; scroll-margin-top: 100px; }
     .section-title { font-size:50px; font-weight:900; margin-bottom:50px; text-align:center; }
 
-    /* ---------- Тарифы ---------- */
-    .tariff-container { max-width:900px; margin:0 auto; background:rgba(255,255,255,0.04); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.1); border-radius:40px; padding:50px 40px; }
-    .days-selector { display:flex; flex-wrap:wrap; justify-content:center; gap:14px; margin-bottom:40px; }
-    .day-btn { padding:14px 32px; border-radius:60px; border:1px solid rgba(255,255,255,0.2); background:transparent; color:rgba(255,255,255,0.7); font-weight:700; font-size:16px; cursor:pointer; transition:.3s; }
-    .day-btn:hover { border-color:#fff; color:#fff; background:rgba(255,255,255,0.05); }
-    .day-btn.active { background:#fff; color:#000; border-color:#fff; box-shadow:0 0 30px rgba(255,255,255,0.3); }
-    .price-display { text-align:center; font-size:64px; font-weight:900; margin:30px 0 40px; letter-spacing:2px; }
-    .price-display small { font-size:24px; font-weight:300; opacity:.6; }
+    /* ---------- Продукты (тарифы) ---------- */
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .product-card {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 30px;
+      padding: 35px 25px;
+      text-align: center;
+      transition: .4s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .product-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 0 50px rgba(255,255,255,0.15);
+      border-color: rgba(255,255,255,0.3);
+    }
+    .product-card h3 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .product-card .days-selector {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    .product-card .day-btn {
+      padding: 8px 16px;
+      border-radius: 30px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: .3s;
+    }
+    .product-card .day-btn:hover { border-color:#fff; color:#fff; background:rgba(255,255,255,0.05); }
+    .product-card .day-btn.active { background:#fff; color:#000; border-color:#fff; box-shadow:0 0 20px rgba(255,255,255,0.3); }
+    .product-card .price-display {
+      font-size: 38px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+    .product-card .price-display small {
+      font-size: 20px;
+      font-weight: 300;
+      opacity: .6;
+    }
 
-    .payment-methods { display:flex; justify-content:center; margin-bottom:40px; }
-    .payment-method { display:inline-flex; align-items:center; gap:14px; padding:18px 44px; border-radius:60px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.05); color:#fff; font-weight:700; font-size:22px; text-decoration:none; transition:.3s; cursor:pointer; user-select:none; }
-    .payment-method:hover { transform:scale(1.03); border-color:rgba(255,255,255,0.5); background:rgba(255,255,255,0.08); }
-    .payment-method.active { border-color:#fff; background:rgba(255,255,255,0.15); box-shadow:0 0 50px rgba(255,255,255,0.2); transform:scale(1.05); }
-    .payment-method i { font-size:36px; color:#ffb347; }
+    /* ---------- Способ оплаты (FunPay) ---------- */
+    .payment-method {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 30px;
+      border-radius: 60px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      font-weight: 600;
+      font-size: 18px;
+      cursor: pointer;
+      transition: .3s;
+      user-select: none;
+    }
+    .payment-method:hover {
+      border-color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.08);
+    }
+    .payment-method.active {
+      border-color: #fff;
+      background: rgba(255,255,255,0.15);
+      box-shadow: 0 0 20px rgba(255,255,255,0.2);
+    }
+    .payment-method i {
+      font-size: 28px;
+      color: #ffb347;
+    }
 
-    .btn-buy { display:block; width:100%; max-width:320px; margin:0 auto; padding:18px 40px; font-size:22px; font-weight:700; border:none; border-radius:60px; background:#444; color:#888; cursor:not-allowed; transition:.3s; pointer-events:none; opacity:.6; }
-    .btn-buy.active { background:linear-gradient(135deg,#fff,#ccc); color:#000; cursor:pointer; pointer-events:auto; opacity:1; }
-    .btn-buy.active:hover { transform:scale(1.04); box-shadow:0 0 60px rgba(255,255,255,0.3); }
+    .product-card .btn-buy {
+      padding: 14px 40px;
+      border-radius: 60px;
+      border: none;
+      font-weight: 700;
+      font-size: 18px;
+      cursor: pointer;
+      transition: .3s;
+      background: #444;
+      color: #888;
+      pointer-events: none;
+      opacity: .6;
+      width: 100%;
+      max-width: 200px;
+    }
+    .product-card .btn-buy.active {
+      background: linear-gradient(135deg, #fff, #ccc);
+      color: #000;
+      pointer-events: auto;
+      opacity: 1;
+    }
+    .product-card .btn-buy.active:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 40px rgba(255,255,255,0.3);
+    }
 
     /* ---------- Поддержка ---------- */
     .support-wrapper { display:flex; flex-direction:column; align-items:center; gap:30px; }
@@ -79,7 +177,7 @@
     /* ---------- Футер ---------- */
     footer { padding:80px 10%; text-align:center; opacity:.6; border-top:1px solid rgba(255,255,255,0.05); font-weight:300; letter-spacing:1px; }
 
-    /* ---------- Модальное окно ---------- */
+    /* ---------- Модальное окно (вход/регистрация/верификация) ---------- */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -111,6 +209,7 @@
     .modal form button { padding:14px; border-radius:30px; border:none; background:#fff; color:#000; font-weight:700; font-size:18px; cursor:pointer; transition:.3s; }
     .modal form button:hover { transform:scale(1.02); box-shadow:0 0 30px rgba(255,255,255,0.3); }
     .modal .error { color:#ff6b6b; font-size:14px; margin-top: -10px; }
+    .modal .success { color:#51cf66; font-size:14px; }
 
     /* ---------- Кабинет ---------- */
     .cabinet {
@@ -148,11 +247,11 @@
       .btn-primary { padding:16px 40px; font-size:16px; }
       section { padding:80px 6% 60px; }
       .section-title { font-size:34px; }
-      .tariff-container { padding:30px 20px; }
-      .price-display { font-size:44px; }
-      .day-btn { padding:10px 20px; font-size:14px; }
-      .payment-method { padding:14px 28px; font-size:18px; }
-      .payment-method i { font-size:28px; }
+      .products { grid-template-columns:1fr; }
+      .product-card { padding:25px 15px; }
+      .product-card .price-display { font-size:32px; }
+      .payment-method { padding:10px 20px; font-size:16px; }
+      .payment-method i { font-size:22px; }
       .discord-link { font-size:18px; padding:14px 30px; }
       .discord-link i { font-size:30px; }
       footer { padding:60px 6%; font-size:14px; }
@@ -171,8 +270,8 @@
   <nav>
     <div class="logo">PODIUM.GG</div>
     <div class="nav-links">
-      <a href="#plans">Тарифы</a>
-      <a href="#support">Поддержка</a>
+      <a id="navPlans">Тарифы</a>
+      <a id="navSupport">Поддержка</a>
       <span class="auth-link" id="authLink">Войти</span>
     </div>
   </nav>
@@ -188,22 +287,52 @@
     </header>
 
     <section id="plans">
-      <h2 class="section-title">Выберите тариф</h2>
-      <div class="tariff-container">
-        <div class="days-selector" id="daysSelector">
-          <button class="day-btn" data-days="1" data-price="99">1 день</button>
-          <button class="day-btn" data-days="3" data-price="159">3 дня</button>
-          <button class="day-btn" data-days="7" data-price="229">7 дней</button>
-          <button class="day-btn" data-days="14" data-price="349">14 дней</button>
-          <button class="day-btn active" data-days="30" data-price="549">30 дней</button>
-        </div>
-        <div class="price-display" id="priceDisplay">549 <small>₽</small></div>
-        <div class="payment-methods">
-          <div class="payment-method" id="funpayMethod">
+      <h2 class="section-title">Выберите продукт</h2>
+      <div class="products">
+        <!-- Product 1: macros DLC -->
+        <div class="product-card" data-product="macros">
+          <h3>Rustex Remake macros DLC</h3>
+          <div class="days-selector" data-product="macros">
+            <button class="day-btn" data-days="30" data-price="549">30 дн.</button>
+            <button class="day-btn" data-days="14" data-price="349">14 дн.</button>
+            <button class="day-btn" data-days="7" data-price="229">7 дн.</button>
+            <button class="day-btn" data-days="3" data-price="159">3 дн.</button>
+            <button class="day-btn active" data-days="1" data-price="99">1 дн.</button>
+          </div>
+          <div class="price-display">99 <small>₽</small></div>
+          <!-- Способ оплаты: FunPay -->
+          <div class="payment-method" data-product="macros">
             <i class="fas fa-coins"></i> FunPay
           </div>
+          <button class="btn-buy product-buy" data-product="macros" disabled>Купить</button>
         </div>
-        <button class="btn-buy" id="buyBtn" disabled>Оплатить</button>
+
+        <!-- Product 2: premium DLC -->
+        <div class="product-card" data-product="premium">
+          <h3>Rustex Remake premium DLC</h3>
+          <div class="days-selector" data-product="premium">
+            <button class="day-btn" data-days="30" data-price="1090">30 дн.</button>
+            <button class="day-btn" data-days="14" data-price="849">14 дн.</button>
+            <button class="day-btn" data-days="7" data-price="649">7 дн.</button>
+            <button class="day-btn" data-days="3" data-price="349">3 дн.</button>
+            <button class="day-btn active" data-days="1" data-price="139">1 дн.</button>
+          </div>
+          <div class="price-display">139 <small>₽</small></div>
+          <div class="payment-method" data-product="premium">
+            <i class="fas fa-coins"></i> FunPay
+          </div>
+          <button class="btn-buy product-buy" data-product="premium" disabled>Купить</button>
+        </div>
+
+        <!-- Product 3: Reset HWID (без выбора дней) -->
+        <div class="product-card" data-product="hwid">
+          <h3>Reset HWID</h3>
+          <div class="price-display">119 <small>₽</small></div>
+          <div class="payment-method" data-product="hwid">
+            <i class="fas fa-coins"></i> FunPay
+          </div>
+          <button class="btn-buy product-buy" data-product="hwid" disabled>Купить</button>
+        </div>
       </div>
     </section>
 
@@ -234,7 +363,6 @@
     <div class="actions">
       <button id="downloadLauncher">Скачать лаунчер</button>
       <button class="btn-buy-client" id="buyClientBtn">Купить клиент</button>
-      <button id="extendSubscription">Продлить подписку (демо)</button>
       <button class="btn-logout" id="logoutBtn">Выйти</button>
     </div>
   </div>
@@ -265,9 +393,23 @@
     </div>
   </div>
 
+  <!-- Модальное окно подтверждения email -->
+  <div class="modal-overlay" id="verifyModal">
+    <div class="modal">
+      <h3>Подтверждение email</h3>
+      <p>На ваш email отправлен код подтверждения. Введите его ниже.</p>
+      <p style="color: #ffb347; font-size: 14px; margin: 5px 0;">(В демо-режиме код показан на экране: <span id="verifyCodeDisplay" style="font-weight:bold;font-size:18px;"></span>)</p>
+      <form id="verifyForm">
+        <input type="text" placeholder="Код подтверждения" id="verifyCode" maxlength="6" required />
+        <div class="error" id="verifyError"></div>
+        <button type="submit">Подтвердить</button>
+      </form>
+    </div>
+  </div>
+
   <script>
     // ============================================================
-    // 1. Свечение, звёзды, плавающие круги (без изменений)
+    // 1. Свечение, звёзды, плавающие круги
     // ============================================================
     const glow = document.querySelector('.cursorGlow');
     window.addEventListener('mousemove', e => {
@@ -322,53 +464,85 @@
     }
 
     // ============================================================
-    // 2. Логика тарифов и оплаты
+    // 2. Логика продуктов (тарифов) с выбором способа оплаты
     // ============================================================
-    const daysBtns = document.querySelectorAll('.day-btn');
-    const priceDisplay = document.getElementById('priceDisplay');
-    const buyBtn = document.getElementById('buyBtn');
-    const funpayMethod = document.getElementById('funpayMethod');
-    let selectedDays = 30, selectedPrice = 549, paymentSelected = false;
+    const FUNPAY_URL = 'https://funpay.com/users/20739931/';
 
-    daysBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        daysBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        selectedDays = parseInt(btn.dataset.days);
-        selectedPrice = parseInt(btn.dataset.price);
-        priceDisplay.innerHTML = `${selectedPrice} <small>₽</small>`;
+    // Для каждой карточки
+    document.querySelectorAll('.product-card').forEach(card => {
+      const productType = card.dataset.product;
+      const daysBtns = card.querySelectorAll('.day-btn');
+      const priceDisplay = card.querySelector('.price-display');
+      const paymentMethod = card.querySelector('.payment-method');
+      const buyBtn = card.querySelector('.product-buy');
+
+      // Функция обновления состояния кнопки
+      function updateBuyButton() {
+        const dayActive = card.querySelector('.day-btn.active');
+        const paymentActive = paymentMethod.classList.contains('active');
+        // Для HWID день не нужен
+        const daySelected = (productType === 'hwid') ? true : (dayActive !== null);
+        if (daySelected && paymentActive) {
+          buyBtn.disabled = false;
+          buyBtn.classList.add('active');
+        } else {
+          buyBtn.disabled = true;
+          buyBtn.classList.remove('active');
+        }
+      }
+
+      // Обработчики для кнопок дней
+      daysBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          daysBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          // Обновляем цену
+          const price = btn.dataset.price;
+          priceDisplay.innerHTML = `${price} <small>₽</small>`;
+          updateBuyButton();
+        });
       });
-    });
 
-    funpayMethod.addEventListener('click', () => {
-      funpayMethod.classList.toggle('active');
-      paymentSelected = funpayMethod.classList.contains('active');
-      if (paymentSelected) {
-        buyBtn.disabled = false;
-        buyBtn.classList.add('active');
-      } else {
-        buyBtn.disabled = true;
-        buyBtn.classList.remove('active');
-      }
-    });
+      // Обработчик выбора способа оплаты (FunPay)
+      paymentMethod.addEventListener('click', () => {
+        // Переключаем активный класс
+        paymentMethod.classList.toggle('active');
+        updateBuyButton();
+      });
 
-    buyBtn.addEventListener('click', () => {
-      if (paymentSelected) {
-        window.open('https://funpay.com/users/20739931/', '_blank');
+      // Кнопка "Купить" – переход на FunPay
+      buyBtn.addEventListener('click', () => {
+        if (!buyBtn.disabled) {
+          window.open(FUNPAY_URL, '_blank');
+        }
+      });
+
+      // Инициализация: если активный день есть, обновляем цену
+      const activeDay = card.querySelector('.day-btn.active');
+      if (activeDay) {
+        priceDisplay.innerHTML = `${activeDay.dataset.price} <small>₽</small>`;
       }
+      // Кнопка изначально неактивна, пока не выбран FunPay
+      buyBtn.disabled = true;
+      buyBtn.classList.remove('active');
     });
 
     // ============================================================
-    // 3. Система регистрации/входа/кабинета (исправленная)
+    // 3. Система регистрации/входа/кабинета (без изменений)
     // ============================================================
     let users = JSON.parse(localStorage.getItem('podium_users')) || [];
     let currentUser = JSON.parse(localStorage.getItem('podium_currentUser')) || null;
+    let pendingVerification = null;
 
-    // DOM-элементы
     const authLink = document.getElementById('authLink');
     const authModal = document.getElementById('authModal');
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
+    const verifyModal = document.getElementById('verifyModal');
+    const verifyForm = document.getElementById('verifyForm');
+    const verifyCodeInput = document.getElementById('verifyCode');
+    const verifyCodeDisplay = document.getElementById('verifyCodeDisplay');
+    const verifyError = document.getElementById('verifyError');
     const tabs = document.querySelectorAll('.tabs span');
     const loginError = document.getElementById('loginError');
     const regError = document.getElementById('regError');
@@ -383,9 +557,10 @@
     const logoutBtn = document.getElementById('logoutBtn');
     const downloadLauncher = document.getElementById('downloadLauncher');
     const buyClientBtn = document.getElementById('buyClientBtn');
-    const extendSubBtn = document.getElementById('extendSubscription');
 
-    // Маскировка почты
+    const navPlans = document.getElementById('navPlans');
+    const navSupport = document.getElementById('navSupport');
+
     function maskEmail(email) {
       if (!email) return '***';
       const at = email.indexOf('@');
@@ -393,7 +568,6 @@
       return email[0] + '***' + email.substring(at);
     }
 
-    // Заполнение данных в кабинете (без изменения видимости)
     function fillCabinetData() {
       if (!currentUser) return;
       cabinetUid.textContent = currentUser.uid || '—';
@@ -414,7 +588,6 @@
       }
     }
 
-    // Показать кабинет
     function showCabinet() {
       if (!currentUser) return;
       mainContent.style.display = 'none';
@@ -422,42 +595,25 @@
       fillCabinetData();
     }
 
-    // Скрыть кабинет (показать основной контент)
     function hideCabinet() {
       mainContent.style.display = 'block';
       cabinet.classList.remove('show');
     }
 
-    // Обновить интерфейс (ссылка в навигации и видимость)
     function updateUI() {
       if (currentUser) {
         authLink.textContent = 'Кабинет';
-        // Если кабинет не показан и мы не находимся в режиме "покупки клиента", то показываем кабинет.
-        // Но мы не знаем, скрыт ли он вручную. Проверим, если mainContent скрыт и cabinet не показан,
-        // значит мы в состоянии "скрыто" - тогда показываем кабинет.
-        // Однако проще: при входе всегда показываем кабинет.
-        // Но чтобы не перекрывать ручное скрытие (когда мы нажали "Купить клиент"), мы не будем автоматически показывать.
-        // Лучше оставить управление видимостью только через showCabinet/hideCabinet.
-        // При входе вызываем showCabinet, при выходе hideCabinet.
-        // При загрузке, если currentUser есть, тоже showCabinet.
       } else {
         authLink.textContent = 'Войти';
         hideCabinet();
       }
     }
 
-    // Сохранение
-    function saveUsers() {
-      localStorage.setItem('podium_users', JSON.stringify(users));
-    }
-    function saveCurrentUser() {
-      localStorage.setItem('podium_currentUser', JSON.stringify(currentUser));
-    }
-    function generateUid() {
-      return 'UID-' + Math.random().toString(36).substring(2, 10).toUpperCase();
-    }
+    function saveUsers() { localStorage.setItem('podium_users', JSON.stringify(users)); }
+    function saveCurrentUser() { localStorage.setItem('podium_currentUser', JSON.stringify(currentUser)); }
+    function generateUid() { return 'UID-' + Math.random().toString(36).substring(2, 10).toUpperCase(); }
+    function generateVerifyCode() { return Math.floor(100000 + Math.random() * 900000).toString(); }
 
-    // Переключение вкладок
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
         tabs.forEach(t => t.classList.remove('active'));
@@ -475,15 +631,12 @@
       });
     });
 
-    // Клик по ссылке входа/кабинета
     authLink.addEventListener('click', (e) => {
       e.preventDefault();
       if (currentUser) {
-        // Если пользователь залогинен – открываем кабинет
         showCabinet();
         return;
       }
-      // Иначе открываем модалку
       authModal.classList.add('show');
       loginForm.style.display = 'flex';
       registerForm.style.display = 'none';
@@ -493,14 +646,16 @@
       regError.textContent = '';
     });
 
-    // Закрыть модалку по клику вне
     authModal.addEventListener('click', (e) => {
-      if (e.target === authModal) {
-        authModal.classList.remove('show');
+      if (e.target === authModal) authModal.classList.remove('show');
+    });
+    verifyModal.addEventListener('click', (e) => {
+      if (e.target === verifyModal) {
+        verifyModal.classList.remove('show');
+        pendingVerification = null;
       }
     });
 
-    // Регистрация
     registerForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const email = document.getElementById('regEmail').value.trim();
@@ -536,18 +691,41 @@
         login: login,
         password: password,
         hwid: 'Не привязан',
-        subscription: { expires: null }
+        subscription: { expires: null },
+        verified: false
       };
-      users.push(newUser);
-      saveUsers();
-      currentUser = newUser;
-      saveCurrentUser();
+      const code = generateVerifyCode();
+      verifyCodeDisplay.textContent = code;
+      pendingVerification = { user: newUser, code: code };
       authModal.classList.remove('show');
-      updateUI();
-      showCabinet(); // показываем кабинет после регистрации
+      verifyModal.classList.add('show');
+      verifyCodeInput.value = '';
+      verifyError.textContent = '';
     });
 
-    // Вход
+    verifyForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const inputCode = verifyCodeInput.value.trim();
+      if (!pendingVerification) {
+        verifyError.textContent = 'Ошибка: нет ожидающей верификации.';
+        return;
+      }
+      if (inputCode === pendingVerification.code) {
+        const user = pendingVerification.user;
+        user.verified = true;
+        users.push(user);
+        saveUsers();
+        currentUser = user;
+        saveCurrentUser();
+        verifyModal.classList.remove('show');
+        pendingVerification = null;
+        updateUI();
+        hideCabinet();
+      } else {
+        verifyError.textContent = 'Неверный код подтверждения.';
+      }
+    });
+
     loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const login = document.getElementById('loginLogin').value.trim();
@@ -563,14 +741,17 @@
         loginError.textContent = 'Неверный логин или пароль.';
         return;
       }
+      if (!user.verified) {
+        loginError.textContent = 'Email не подтверждён. Проверьте почту.';
+        return;
+      }
       currentUser = user;
       saveCurrentUser();
       authModal.classList.remove('show');
       updateUI();
-      showCabinet();
+      hideCabinet();
     });
 
-    // Выход
     logoutBtn.addEventListener('click', () => {
       currentUser = null;
       localStorage.removeItem('podium_currentUser');
@@ -579,46 +760,37 @@
       window.scrollTo({top:0, behavior:'smooth'});
     });
 
-    // Кнопка "Скачать лаунчер"
     downloadLauncher.addEventListener('click', () => {
       alert('Скачивание лаунчера начнется... (демо)');
     });
 
-    // Кнопка "Купить клиент" – скрываем кабинет и скроллим к тарифам
     buyClientBtn.addEventListener('click', () => {
       hideCabinet();
       document.getElementById('plans').scrollIntoView({behavior:'smooth'});
     });
 
-    // Кнопка "Продлить подписку" (демо)
-    extendSubBtn.addEventListener('click', () => {
-      if (!currentUser) return;
-      let expires = currentUser.subscription && currentUser.subscription.expires ? new Date(currentUser.subscription.expires) : new Date();
-      if (expires < new Date()) expires = new Date();
-      expires.setDate(expires.getDate() + 30);
-      currentUser.subscription = { expires: expires.toISOString() };
-      const idx = users.findIndex(u => u.uid === currentUser.uid);
-      if (idx !== -1) {
-        users[idx].subscription = currentUser.subscription;
-        saveUsers();
-      }
-      saveCurrentUser();
-      fillCabinetData(); // обновляем данные без переключения видимости
-      alert('Подписка продлена на 30 дней! (демо)');
+    navPlans.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (currentUser) hideCabinet();
+      document.getElementById('plans').scrollIntoView({behavior:'smooth'});
     });
 
-    // ============================================================
-    // 4. Инициализация при загрузке
-    // ============================================================
+    navSupport.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (currentUser) hideCabinet();
+      document.getElementById('support').scrollIntoView({behavior:'smooth'});
+    });
+
+    // Инициализация
     if (currentUser) {
       updateUI();
-      showCabinet();
+      hideCabinet();
     } else {
       updateUI();
       hideCabinet();
     }
 
-    console.log('✅ Все системы готовы. Теперь кабинет открывается по клику на "Кабинет" после скрытия.');
+    console.log('✅ Добавлен выбор способа оплаты FunPay в каждой карточке.');
   </script>
 </body>
 </html>
