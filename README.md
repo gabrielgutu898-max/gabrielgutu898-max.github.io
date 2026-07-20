@@ -5,18 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Podium.gg — Premium DLC</title>
 
+  <!-- Шрифты и иконки (CDN) -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
   <style>
-    
+    /* ---------- Глобальные сбросы ---------- */
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
     body { background:#000; overflow-x:hidden; color:#fff; }
     canvas { position:fixed; inset:0; z-index:-2; }
     #noise { position:fixed; inset:0; pointer-events:none; opacity:.06; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"); mix-blend-mode:overlay; z-index:-1; }
     .cursorGlow { position:fixed; width:500px; height:500px; border-radius:50%; pointer-events:none; background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%); transform:translate(-50%,-50%); z-index:-1; }
 
-   
+    /* ---------- Навигация ---------- */
     nav {
       position: fixed;
       top: 0;
@@ -30,23 +34,25 @@
       backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(255,255,255,0.08);
       z-index: 100;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     .logo { font-size:24px; font-weight:900; letter-spacing:3px; background:linear-gradient(135deg,#fff,#aaa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-    .nav-links { display:flex; gap:40px; align-items:center; }
+    .nav-links { display:flex; gap:30px; align-items:center; flex-wrap:wrap; }
     .nav-links a { color:rgba(255,255,255,0.7); text-decoration:none; font-weight:500; font-size:16px; transition:.3s; position:relative; cursor:pointer; }
     .nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px; background:#fff; transition:.3s; }
     .nav-links a:hover { color:#fff; }
     .nav-links a:hover::after { width:100%; }
     .nav-links .auth-link { cursor:pointer; }
 
-
+    /* ---------- Хедер ---------- */
     header { height:100vh; display:flex; justify-content:center; align-items:center; flex-direction:column; text-align:center; position:relative; padding-top:80px; }
     h1 { font-size:80px; font-weight:900; letter-spacing:8px; animation:glitch 5s infinite; }
     .subtitle { margin-top:20px; opacity:.75; font-size:20px; }
     .btn-primary { margin-top:50px; padding:20px 60px; font-size:20px; border:none; cursor:pointer; background:#fff; color:#000; font-weight:700; border-radius:50px; transition:.3s; }
     .btn-primary:hover { transform:scale(1.1); box-shadow:0 0 80px rgba(255,255,255,0.7); }
 
-
+    /* ---------- Секции ---------- */
     section { padding:120px 10% 80px; scroll-margin-top: 100px; }
     .section-title { font-size:50px; font-weight:900; margin-bottom:50px; text-align:center; }
 
@@ -177,7 +183,7 @@
     /* ---------- Футер ---------- */
     footer { padding:80px 10%; text-align:center; opacity:.6; border-top:1px solid rgba(255,255,255,0.05); font-weight:300; letter-spacing:1px; }
 
-    /* ---------- Модальное окно (вход/регистрация/верификация) ---------- */
+    /* ---------- Модальные окна ---------- */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -240,8 +246,8 @@
 
     /* ---------- Адаптивность ---------- */
     @media (max-width:768px) {
-      nav { padding:16px 6%; flex-wrap:wrap; gap:12px; }
-      .nav-links { gap:20px; }
+      nav { padding:16px 6%; flex-direction:column; align-items:center; }
+      .nav-links { gap:20px; justify-content:center; }
       h1 { font-size:48px; letter-spacing:4px; }
       .subtitle { font-size:16px; }
       .btn-primary { padding:16px 40px; font-size:16px; }
@@ -256,6 +262,12 @@
       .discord-link i { font-size:30px; }
       footer { padding:60px 6%; font-size:14px; }
       .cabinet { padding:120px 6% 60px; }
+    }
+    @media (max-width:480px) {
+      .nav-links a { font-size:14px; }
+      .product-card .day-btn { padding:6px 12px; font-size:12px; }
+      .product-card .btn-buy { max-width:100%; }
+      .modal { padding:25px; }
     }
   </style>
 </head>
@@ -276,7 +288,7 @@
     </div>
   </nav>
 
-  <!-- Основной контент (скрывается при открытом кабинете) -->
+  <!-- Основной контент -->
   <div id="mainContent">
     <header>
       <h1>PODIUM.GG</h1>
@@ -289,49 +301,42 @@
     <section id="plans">
       <h2 class="section-title">Выберите продукт</h2>
       <div class="products">
-        <!-- Product 1: macros DLC -->
+        <!-- макросы -->
         <div class="product-card" data-product="macros">
           <h3>Rustex Remake macros DLC</h3>
-          <div class="days-selector" data-product="macros">
-            <button class="day-btn" data-days="30" data-price="549">30 дн.</button>
+          <div class="days-selector">
+            <button class="day-btn active" data-days="30" data-price="549">30 дн.</button>
             <button class="day-btn" data-days="14" data-price="349">14 дн.</button>
             <button class="day-btn" data-days="7" data-price="229">7 дн.</button>
             <button class="day-btn" data-days="3" data-price="159">3 дн.</button>
-            <button class="day-btn active" data-days="1" data-price="99">1 дн.</button>
+            <button class="day-btn" data-days="1" data-price="99">1 дн.</button>
           </div>
-          <div class="price-display">99 <small>₽</small></div>
-          <!-- Способ оплаты: FunPay -->
-          <div class="payment-method" data-product="macros">
-            <i class="fas fa-coins"></i> FunPay
-          </div>
-          <button class="btn-buy product-buy" data-product="macros" disabled>Купить</button>
+          <div class="price-display">549 <small>₽</small></div>
+          <div class="payment-method"><i class="fas fa-coins"></i> FunPay</div>
+          <button class="btn-buy product-buy" disabled>Купить</button>
         </div>
 
-        <!-- Product 2: premium DLC -->
+        <!-- премиум -->
         <div class="product-card" data-product="premium">
           <h3>Rustex Remake premium DLC</h3>
-          <div class="days-selector" data-product="premium">
-            <button class="day-btn" data-days="30" data-price="1090">30 дн.</button>
+          <div class="days-selector">
+            <button class="day-btn active" data-days="30" data-price="1090">30 дн.</button>
             <button class="day-btn" data-days="14" data-price="849">14 дн.</button>
             <button class="day-btn" data-days="7" data-price="649">7 дн.</button>
             <button class="day-btn" data-days="3" data-price="349">3 дн.</button>
-            <button class="day-btn active" data-days="1" data-price="139">1 дн.</button>
+            <button class="day-btn" data-days="1" data-price="139">1 дн.</button>
           </div>
-          <div class="price-display">139 <small>₽</small></div>
-          <div class="payment-method" data-product="premium">
-            <i class="fas fa-coins"></i> FunPay
-          </div>
-          <button class="btn-buy product-buy" data-product="premium" disabled>Купить</button>
+          <div class="price-display">1090 <small>₽</small></div>
+          <div class="payment-method"><i class="fas fa-coins"></i> FunPay</div>
+          <button class="btn-buy product-buy" disabled>Купить</button>
         </div>
 
-        <!-- Product 3: Reset HWID (без выбора дней) -->
+        <!-- сброс HWID -->
         <div class="product-card" data-product="hwid">
           <h3>Reset HWID</h3>
           <div class="price-display">119 <small>₽</small></div>
-          <div class="payment-method" data-product="hwid">
-            <i class="fas fa-coins"></i> FunPay
-          </div>
-          <button class="btn-buy product-buy" data-product="hwid" disabled>Купить</button>
+          <div class="payment-method"><i class="fas fa-coins"></i> FunPay</div>
+          <button class="btn-buy product-buy" disabled>Купить</button>
         </div>
       </div>
     </section>
@@ -374,14 +379,12 @@
         <span class="active" data-tab="login">Вход</span>
         <span data-tab="register">Регистрация</span>
       </div>
-      <!-- Форма входа -->
       <form id="loginForm">
         <input type="text" placeholder="Логин" id="loginLogin" required />
         <input type="password" placeholder="Пароль" id="loginPassword" required />
         <div class="error" id="loginError"></div>
         <button type="submit">Войти</button>
       </form>
-      <!-- Форма регистрации -->
       <form id="registerForm" style="display:none;">
         <input type="email" placeholder="Email" id="regEmail" required />
         <input type="text" placeholder="Логин" id="regLogin" required />
@@ -398,18 +401,33 @@
     <div class="modal">
       <h3>Подтверждение email</h3>
       <p>На ваш email отправлен код подтверждения. Введите его ниже.</p>
-      <p style="color: #ffb347; font-size: 14px; margin: 5px 0;">(В демо-режиме код показан на экране: <span id="verifyCodeDisplay" style="font-weight:bold;font-size:18px;"></span>)</p>
+      <p style="color: #ffb347; font-size: 14px; margin: 5px 0;">(Демо-код также показан на экране: <span id="verifyCodeDisplay" style="font-weight:bold;font-size:18px;"></span>)</p>
       <form id="verifyForm">
         <input type="text" placeholder="Код подтверждения" id="verifyCode" maxlength="6" required />
         <div class="error" id="verifyError"></div>
         <button type="submit">Подтвердить</button>
       </form>
+      <p style="margin-top:10px;font-size:12px;opacity:.5;">Если письмо не пришло, проверьте спам или повторите регистрацию.</p>
     </div>
   </div>
 
   <script>
     // ============================================================
-    // 1. Свечение, звёзды, плавающие круги
+    // ⚙️ НАСТРОЙКА EMAILJS (ЗАМЕНИТЕ НА СВОИ ДАННЫЕ)
+    // ============================================================
+    const EMAILJS_CONFIG = {
+      publicKey: 'OOo-5hbLUAC1aAZeb',    // Получить в EmailJS
+      serviceID: 'service_xxxxx',    // ID сервиса (например, 'service_abc123')
+      templateID: 'template_xxxxx'   // ID шаблона (например, 'template_xyz789')
+    };
+
+    // Инициализация EmailJS (если ключи не пустые)
+    if (EMAILJS_CONFIG.publicKey && EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_KEY') {
+      emailjs.init(EMAILJS_CONFIG.publicKey);
+    }
+
+    // ============================================================
+    // 1. Фоновые эффекты
     // ============================================================
     const glow = document.querySelector('.cursorGlow');
     window.addEventListener('mousemove', e => {
@@ -464,11 +482,10 @@
     }
 
     // ============================================================
-    // 2. Логика продуктов (тарифов) с выбором способа оплаты
+    // 2. Логика продуктов (тарифы + оплата)
     // ============================================================
     const FUNPAY_URL = 'https://funpay.com/users/20739931/';
 
-    // Для каждой карточки
     document.querySelectorAll('.product-card').forEach(card => {
       const productType = card.dataset.product;
       const daysBtns = card.querySelectorAll('.day-btn');
@@ -476,11 +493,9 @@
       const paymentMethod = card.querySelector('.payment-method');
       const buyBtn = card.querySelector('.product-buy');
 
-      // Функция обновления состояния кнопки
       function updateBuyButton() {
         const dayActive = card.querySelector('.day-btn.active');
         const paymentActive = paymentMethod.classList.contains('active');
-        // Для HWID день не нужен
         const daySelected = (productType === 'hwid') ? true : (dayActive !== null);
         if (daySelected && paymentActive) {
           buyBtn.disabled = false;
@@ -491,44 +506,38 @@
         }
       }
 
-      // Обработчики для кнопок дней
       daysBtns.forEach(btn => {
         btn.addEventListener('click', () => {
           daysBtns.forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          // Обновляем цену
           const price = btn.dataset.price;
           priceDisplay.innerHTML = `${price} <small>₽</small>`;
           updateBuyButton();
         });
       });
 
-      // Обработчик выбора способа оплаты (FunPay)
       paymentMethod.addEventListener('click', () => {
-        // Переключаем активный класс
         paymentMethod.classList.toggle('active');
         updateBuyButton();
       });
 
-      // Кнопка "Купить" – переход на FunPay
       buyBtn.addEventListener('click', () => {
         if (!buyBtn.disabled) {
           window.open(FUNPAY_URL, '_blank');
         }
       });
 
-      // Инициализация: если активный день есть, обновляем цену
+      // инициализация
       const activeDay = card.querySelector('.day-btn.active');
       if (activeDay) {
         priceDisplay.innerHTML = `${activeDay.dataset.price} <small>₽</small>`;
       }
-      // Кнопка изначально неактивна, пока не выбран FunPay
       buyBtn.disabled = true;
       buyBtn.classList.remove('active');
     });
 
     // ============================================================
-    // 3. Система регистрации/входа/кабинета (без изменений)
+    // 3. Регистрация / вход / кабинет + EmailJS
     // ============================================================
     let users = JSON.parse(localStorage.getItem('podium_users')) || [];
     let currentUser = JSON.parse(localStorage.getItem('podium_currentUser')) || null;
@@ -614,6 +623,7 @@
     function generateUid() { return 'UID-' + Math.random().toString(36).substring(2, 10).toUpperCase(); }
     function generateVerifyCode() { return Math.floor(100000 + Math.random() * 900000).toString(); }
 
+    // Переключение вкладок
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
         tabs.forEach(t => t.classList.remove('active'));
@@ -631,6 +641,7 @@
       });
     });
 
+    // Открытие модалки входа
     authLink.addEventListener('click', (e) => {
       e.preventDefault();
       if (currentUser) {
@@ -646,6 +657,7 @@
       regError.textContent = '';
     });
 
+    // Закрытие модалок по клику вне
     authModal.addEventListener('click', (e) => {
       if (e.target === authModal) authModal.classList.remove('show');
     });
@@ -656,7 +668,8 @@
       }
     });
 
-    registerForm.addEventListener('submit', (e) => {
+    // === Регистрация ===
+    registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('regEmail').value.trim();
       const login = document.getElementById('regLogin').value.trim();
@@ -685,6 +698,7 @@
         return;
       }
 
+      // Создаём пользователя (не подтверждён)
       const newUser = {
         uid: generateUid(),
         email: email,
@@ -697,12 +711,35 @@
       const code = generateVerifyCode();
       verifyCodeDisplay.textContent = code;
       pendingVerification = { user: newUser, code: code };
+
+      // Отправка письма через EmailJS (если настроено)
+      if (EMAILJS_CONFIG.publicKey && EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_KEY') {
+        try {
+          const templateParams = {
+            to_email: email,
+            to_name: login,
+            verification_code: code,
+            site_name: 'Podium.gg'
+          };
+          await emailjs.send(EMAILJS_CONFIG.serviceID, EMAILJS_CONFIG.templateID, templateParams);
+          console.log('✅ Email отправлен');
+        } catch (err) {
+          console.warn('⚠️ Ошибка отправки email:', err);
+          regError.textContent = 'Не удалось отправить письмо, но код показан на экране.';
+          // не прерываем процесс, пользователь может ввести код вручную
+        }
+      } else {
+        console.warn('⚠️ EmailJS не настроен, код только на экране.');
+      }
+
+      // Открываем окно верификации
       authModal.classList.remove('show');
       verifyModal.classList.add('show');
       verifyCodeInput.value = '';
       verifyError.textContent = '';
     });
 
+    // === Подтверждение email ===
     verifyForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const inputCode = verifyCodeInput.value.trim();
@@ -720,12 +757,14 @@
         verifyModal.classList.remove('show');
         pendingVerification = null;
         updateUI();
-        hideCabinet();
+        hideCabinet(); // остаёмся на главной
+        alert('✅ Регистрация успешна! Добро пожаловать.');
       } else {
         verifyError.textContent = 'Неверный код подтверждения.';
       }
     });
 
+    // === Вход ===
     loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const login = document.getElementById('loginLogin').value.trim();
@@ -752,6 +791,7 @@
       hideCabinet();
     });
 
+    // Выход
     logoutBtn.addEventListener('click', () => {
       currentUser = null;
       localStorage.removeItem('podium_currentUser');
@@ -760,21 +800,23 @@
       window.scrollTo({top:0, behavior:'smooth'});
     });
 
+    // Кнопка "Скачать лаунчер"
     downloadLauncher.addEventListener('click', () => {
       alert('Скачивание лаунчера начнется... (демо)');
     });
 
+    // "Купить клиент" – скрыть кабинет и скролл к тарифам
     buyClientBtn.addEventListener('click', () => {
       hideCabinet();
       document.getElementById('plans').scrollIntoView({behavior:'smooth'});
     });
 
+    // Навигация
     navPlans.addEventListener('click', (e) => {
       e.preventDefault();
       if (currentUser) hideCabinet();
       document.getElementById('plans').scrollIntoView({behavior:'smooth'});
     });
-
     navSupport.addEventListener('click', (e) => {
       e.preventDefault();
       if (currentUser) hideCabinet();
@@ -790,7 +832,7 @@
       hideCabinet();
     }
 
-    console.log('✅ Добавлен выбор способа оплаты FunPay в каждой карточке.');
+    console.log('✅ Сайт обновлён: EmailJS интегрирован, всё адаптировано под GitHub Pages.');
   </script>
 </body>
 </html>
