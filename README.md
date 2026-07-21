@@ -1,778 +1,273 @@
-<!DOCTYPE html>
+
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Podium.gg — Premium DLC</title>
 
-  <!-- Шрифты и иконки -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
+  <!-- Шрифты и иконки (CDN) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 
-  <!-- EmailJS -->
+  <!-- EmailJS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
   <style>
-    /* ===== Глобальные сбросы и базовые стили ===== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-    }
+    /* ---------- Глобальные сбросы ---------- */
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+    body { background:#000; overflow-x:hidden; color:#fff; }
+    canvas { position:fixed; inset:0; z-index:-2; }
+    #noise { position:fixed; inset:0; pointer-events:none; opacity:.06; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"); mix-blend-mode:overlay; z-index:-1; }
+    .cursorGlow { position:fixed; width:500px; height:500px; border-radius:50%; pointer-events:none; background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%); transform:translate(-50%,-50%); z-index:-1; }
 
-    body {
-      background: #0a0a0f;
-      overflow-x: hidden;
-      color: #fff;
-      line-height: 1.6;
-    }
-
-    canvas {
-      position: fixed;
-      inset: 0;
-      z-index: -2;
-      pointer-events: none;
-    }
-
-    #noise {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.04;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
-      mix-blend-mode: overlay;
-      z-index: -1;
-    }
-
-    .cursorGlow {
-      position: fixed;
-      width: 600px;
-      height: 600px;
-      border-radius: 50%;
-      pointer-events: none;
-      background: radial-gradient(circle, rgba(120, 80, 255, 0.15), transparent 70%);
-      transform: translate(-50%, -50%);
-      z-index: -1;
-      transition: opacity 0.3s ease;
-    }
-
-    /* ===== Анимации появления ===== */
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px) scale(0.98);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .animate-on-load {
-      animation: fadeInUp 0.8s ease forwards;
-    }
-
-    /* ===== Навигация ===== */
+    /* ---------- Навигация ---------- */
     nav {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      padding: 18px 10%;
+      padding: 20px 10%;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(10, 10, 15, 0.7);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
       z-index: 100;
-      transition: background 0.4s ease;
-    }
-
-    nav:hover {
-      background: rgba(10, 10, 15, 0.9);
-    }
-
-    .logo {
-      font-size: 26px;
-      font-weight: 900;
-      letter-spacing: 2px;
-      background: linear-gradient(135deg, #fff, #a78bfa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-shadow: 0 0 30px rgba(167, 139, 250, 0.3);
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 35px;
-      align-items: center;
       flex-wrap: wrap;
+      gap: 10px;
     }
+    .logo { font-size:24px; font-weight:900; letter-spacing:3px; background:linear-gradient(135deg,#fff,#aaa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .nav-links { display:flex; gap:30px; align-items:center; flex-wrap:wrap; }
+    .nav-links a { color:rgba(255,255,255,0.7); text-decoration:none; font-weight:500; font-size:16px; transition:.3s; position:relative; cursor:pointer; }
+    .nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px; background:#fff; transition:.3s; }
+    .nav-links a:hover { color:#fff; }
+    .nav-links a:hover::after { width:100%; }
+    .nav-links .auth-link { cursor:pointer; }
 
-    .nav-links a {
-      color: rgba(255, 255, 255, 0.6);
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 15px;
-      transition: all 0.3s ease;
-      position: relative;
-      cursor: pointer;
-      letter-spacing: 0.3px;
-    }
+    /* ---------- Хедер ---------- */
+    header { height:100vh; display:flex; justify-content:center; align-items:center; flex-direction:column; text-align:center; position:relative; padding-top:80px; }
+    h1 { font-size:80px; font-weight:900; letter-spacing:8px; animation:glitch 5s infinite; }
+    .subtitle { margin-top:20px; opacity:.75; font-size:20px; }
+    .btn-primary { margin-top:50px; padding:20px 60px; font-size:20px; border:none; cursor:pointer; background:#fff; color:#000; font-weight:700; border-radius:50px; transition:.3s; }
+    .btn-primary:hover { transform:scale(1.1); box-shadow:0 0 80px rgba(255,255,255,0.7); }
 
-    .nav-links a::after {
-      content: '';
-      position: absolute;
-      bottom: -4px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: linear-gradient(90deg, #a78bfa, #7c3aed);
-      transition: width 0.3s ease;
-    }
+    /* ---------- Секции ---------- */
+    section { padding:120px 10% 80px; scroll-margin-top: 100px; }
+    .section-title { font-size:50px; font-weight:900; margin-bottom:50px; text-align:center; }
 
-    .nav-links a:hover {
-      color: #fff;
-    }
-
-    .nav-links a:hover::after {
-      width: 100%;
-    }
-
-    .nav-links .auth-link {
-      background: linear-gradient(135deg, #a78bfa, #7c3aed);
-      padding: 8px 24px;
-      border-radius: 50px;
-      color: #fff !important;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      box-shadow: 0 0 20px rgba(167, 139, 250, 0.3);
-    }
-
-    .nav-links .auth-link::after {
-      display: none;
-    }
-
-    .nav-links .auth-link:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 40px rgba(167, 139, 250, 0.5);
-    }
-
-    /* ===== Хедер ===== */
-    header {
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      text-align: center;
-      padding-top: 80px;
-      position: relative;
-    }
-
-    h1 {
-      font-size: clamp(3.5rem, 12vw, 7rem);
-      font-weight: 900;
-      letter-spacing: 6px;
-      animation: glitch 6s infinite;
-      background: linear-gradient(135deg, #fff 30%, #a78bfa 70%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-shadow: 0 0 60px rgba(167, 139, 250, 0.2);
-    }
-
-    .subtitle {
-      margin-top: 20px;
-      opacity: 0.8;
-      font-size: clamp(1rem, 2.5vw, 1.5rem);
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.7);
-    }
-
-    .btn-primary {
-      margin-top: 50px;
-      padding: 18px 60px;
-      font-size: 1.1rem;
-      border: none;
-      cursor: pointer;
-      background: linear-gradient(135deg, #fff, #e0e0e0);
-      color: #0a0a0f;
-      font-weight: 700;
-      border-radius: 60px;
-      transition: all 0.4s ease;
-      box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
-      letter-spacing: 1px;
-    }
-
-    .btn-primary:hover {
-      transform: scale(1.08) translateY(-3px);
-      box-shadow: 0 0 80px rgba(167, 139, 250, 0.4);
-    }
-
-    /* ===== Секции ===== */
-    section {
-      padding: 120px 10% 80px;
-      scroll-margin-top: 100px;
-    }
-
-    .section-title {
-      font-size: clamp(2.5rem, 6vw, 3.8rem);
-      font-weight: 900;
-      margin-bottom: 50px;
-      text-align: center;
-      background: linear-gradient(135deg, #fff, #a78bfa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: 2px;
-    }
-
-    /* ===== Карточки продуктов ===== */
+    /* ---------- Продукты (тарифы) ---------- */
     .products {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 40px;
+      gap: 30px;
       max-width: 1200px;
       margin: 0 auto;
     }
-
     .product-card {
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255,255,255,0.04);
       backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 40px;
-      padding: 40px 25px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 30px;
+      padding: 35px 25px;
       text-align: center;
-      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      transition: .4s;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 22px;
-      position: relative;
-      overflow: hidden;
+      gap: 20px;
     }
-
-    .product-card::before {
-      content: '';
-      position: absolute;
-      inset: -2px;
-      border-radius: 42px;
-      padding: 2px;
-      background: linear-gradient(135deg, rgba(167, 139, 250, 0.3), transparent, rgba(167, 139, 250, 0.3));
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.6s ease;
-    }
-
-    .product-card:hover::before {
-      opacity: 1;
-    }
-
     .product-card:hover {
-      transform: translateY(-16px) scale(1.02);
-      box-shadow: 0 30px 80px rgba(167, 139, 250, 0.15);
-      border-color: rgba(167, 139, 250, 0.3);
+      transform: translateY(-10px);
+      box-shadow: 0 0 50px rgba(255,255,255,0.15);
+      border-color: rgba(255,255,255,0.3);
     }
-
     .product-card h3 {
-      font-size: 1.5rem;
+      font-size: 24px;
       font-weight: 700;
-      letter-spacing: 0.5px;
-      background: linear-gradient(135deg, #fff, #a78bfa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      letter-spacing: 1px;
     }
-
     .product-card .days-selector {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 8px;
+      gap: 10px;
     }
-
     .product-card .day-btn {
-      padding: 6px 14px;
+      padding: 8px 16px;
       border-radius: 30px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      background: rgba(255, 255, 255, 0.04);
-      color: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(255,255,255,0.2);
+      background: transparent;
+      color: rgba(255,255,255,0.7);
       font-weight: 600;
-      font-size: 0.8rem;
+      font-size: 13px;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: .3s;
     }
-
-    .product-card .day-btn:hover {
-      border-color: rgba(167, 139, 250, 0.6);
-      color: #fff;
-      background: rgba(167, 139, 250, 0.1);
-    }
-
-    .product-card .day-btn.active {
-      background: linear-gradient(135deg, #a78bfa, #7c3aed);
-      border-color: transparent;
-      color: #fff;
-      box-shadow: 0 0 30px rgba(167, 139, 250, 0.3);
-    }
-
+    .product-card .day-btn:hover { border-color:#fff; color:#fff; background:rgba(255,255,255,0.05); }
+    .product-card .day-btn.active { background:#fff; color:#000; border-color:#fff; box-shadow:0 0 20px rgba(255,255,255,0.3); }
     .product-card .price-display {
-      font-size: 2.8rem;
+      font-size: 38px;
       font-weight: 900;
       letter-spacing: 1px;
-      background: linear-gradient(135deg, #fff, #e0e0e0);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
     }
-
     .product-card .price-display small {
-      font-size: 1.2rem;
-      opacity: 0.6;
+      font-size: 20px;
+      font-weight: 300;
+      opacity: .6;
     }
 
-    /* Способ оплаты */
+    /* ---------- Способ оплаты (FunPay) ---------- */
     .payment-method {
       display: inline-flex;
       align-items: center;
       gap: 12px;
-      padding: 12px 32px;
+      padding: 12px 30px;
       border-radius: 60px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      background: rgba(255, 255, 255, 0.04);
-      color: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      color: #fff;
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 18px;
       cursor: pointer;
-      transition: all 0.4s ease;
+      transition: .3s;
       user-select: none;
     }
-
     .payment-method:hover {
-      border-color: rgba(167, 139, 250, 0.5);
-      background: rgba(167, 139, 250, 0.08);
-      transform: scale(1.03);
+      border-color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.08);
     }
-
     .payment-method.active {
-      border-color: #a78bfa;
-      background: rgba(167, 139, 250, 0.15);
-      box-shadow: 0 0 40px rgba(167, 139, 250, 0.2);
-      color: #fff;
+      border-color: #fff;
+      background: rgba(255,255,255,0.15);
+      box-shadow: 0 0 20px rgba(255,255,255,0.2);
     }
-
     .payment-method i {
-      font-size: 1.6rem;
-      color: #fbbf24;
+      font-size: 28px;
+      color: #ffb347;
     }
 
     .product-card .btn-buy {
-      padding: 14px 44px;
+      padding: 14px 40px;
       border-radius: 60px;
       border: none;
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 18px;
       cursor: pointer;
-      transition: all 0.4s ease;
-      background: rgba(255, 255, 255, 0.06);
-      color: rgba(255, 255, 255, 0.3);
+      transition: .3s;
+      background: #444;
+      color: #888;
       pointer-events: none;
-      opacity: 0.5;
+      opacity: .6;
       width: 100%;
-      max-width: 220px;
-      letter-spacing: 0.5px;
+      max-width: 200px;
     }
-
     .product-card .btn-buy.active {
-      background: linear-gradient(135deg, #a78bfa, #7c3aed);
-      color: #fff;
+      background: linear-gradient(135deg, #fff, #ccc);
+      color: #000;
       pointer-events: auto;
       opacity: 1;
-      box-shadow: 0 0 30px rgba(167, 139, 250, 0.3);
     }
-
     .product-card .btn-buy.active:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 60px rgba(167, 139, 250, 0.5);
+      box-shadow: 0 0 40px rgba(255,255,255,0.3);
     }
 
-    /* ===== Поддержка ===== */
-    .support-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 30px;
-    }
+    /* ---------- Поддержка ---------- */
+    .support-wrapper { display:flex; flex-direction:column; align-items:center; gap:30px; }
+    .support-wrapper p { font-size:20px; opacity:.7; max-width:500px; text-align:center; }
+    .discord-link { display:inline-flex; align-items:center; gap:16px; padding:18px 44px; border-radius:60px; background:#5865f2; color:#fff; font-size:24px; font-weight:700; text-decoration:none; transition:.3s; box-shadow:0 0 40px rgba(88,101,242,0.3); }
+    .discord-link i { font-size:40px; }
+    .discord-link:hover { transform:scale(1.08); box-shadow:0 0 80px rgba(88,101,242,0.6); }
 
-    .support-wrapper p {
-      font-size: 1.2rem;
-      opacity: 0.7;
-      max-width: 500px;
-      text-align: center;
-    }
+    /* ---------- Футер ---------- */
+    footer { padding:80px 10%; text-align:center; opacity:.6; border-top:1px solid rgba(255,255,255,0.05); font-weight:300; letter-spacing:1px; }
 
-    .discord-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 16px;
-      padding: 18px 48px;
-      border-radius: 60px;
-      background: linear-gradient(135deg, #5865f2, #4752c4);
-      color: #fff;
-      font-size: 1.4rem;
-      font-weight: 700;
-      text-decoration: none;
-      transition: all 0.4s ease;
-      box-shadow: 0 0 40px rgba(88, 101, 242, 0.3);
-    }
-
-    .discord-link i {
-      font-size: 2.2rem;
-    }
-
-    .discord-link:hover {
-      transform: scale(1.08) translateY(-3px);
-      box-shadow: 0 0 80px rgba(88, 101, 242, 0.5);
-    }
-
-    /* ===== Футер ===== */
-    footer {
-      padding: 80px 10%;
-      text-align: center;
-      opacity: 0.5;
-      border-top: 1px solid rgba(255, 255, 255, 0.04);
-      font-weight: 300;
-      letter-spacing: 1px;
-      font-size: 0.9rem;
-    }
-
-    /* ===== Модальные окна ===== */
+    /* ---------- Модальные окна ---------- */
     .modal-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(16px);
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
       justify-content: center;
       align-items: center;
       z-index: 999;
-      animation: fadeIn 0.3s ease;
     }
-
-    .modal-overlay.show {
-      display: flex;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
+    .modal-overlay.show { display:flex; }
     .modal {
-      background: #16161f;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 50px;
-      padding: 45px 40px;
-      max-width: 460px;
+      background: #1a1a1a;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 40px;
+      padding: 40px;
+      max-width: 440px;
       width: 90%;
       text-align: center;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.6);
     }
+    .modal .tabs { display:flex; gap:20px; justify-content:center; margin-bottom:30px; }
+    .modal .tabs span { font-size:20px; font-weight:700; opacity:.5; cursor:pointer; transition:.3s; }
+    .modal .tabs span.active { opacity:1; border-bottom:2px solid #fff; padding-bottom:6px; }
+    .modal form { display:flex; flex-direction:column; gap:16px; }
+    .modal form input { padding:14px 20px; border-radius:30px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.05); color:#fff; font-size:16px; outline:none; transition:.3s; }
+    .modal form input:focus { border-color:#fff; }
+    .modal form button { padding:14px; border-radius:30px; border:none; background:#fff; color:#000; font-weight:700; font-size:18px; cursor:pointer; transition:.3s; }
+    .modal form button:hover { transform:scale(1.02); box-shadow:0 0 30px rgba(255,255,255,0.3); }
+    .modal .error { color:#ff6b6b; font-size:14px; margin-top: -10px; }
+    .modal .success { color:#51cf66; font-size:14px; }
 
-    .modal .tabs {
-      display: flex;
-      gap: 24px;
-      justify-content: center;
-      margin-bottom: 35px;
-    }
-
-    .modal .tabs span {
-      font-size: 1.1rem;
-      font-weight: 600;
-      opacity: 0.4;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      padding-bottom: 4px;
-    }
-
-    .modal .tabs span.active {
-      opacity: 1;
-      border-bottom: 2px solid #a78bfa;
-      padding-bottom: 4px;
-      color: #fff;
-    }
-
-    .modal form {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    .modal form input {
-      padding: 16px 24px;
-      border-radius: 40px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(255, 255, 255, 0.04);
-      color: #fff;
-      font-size: 1rem;
-      outline: none;
-      transition: all 0.3s ease;
-    }
-
-    .modal form input:focus {
-      border-color: #a78bfa;
-      background: rgba(167, 139, 250, 0.05);
-      box-shadow: 0 0 30px rgba(167, 139, 250, 0.1);
-    }
-
-    .modal form button {
-      padding: 16px;
-      border-radius: 40px;
-      border: none;
-      background: linear-gradient(135deg, #a78bfa, #7c3aed);
-      color: #fff;
-      font-weight: 700;
-      font-size: 1.1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 0 30px rgba(167, 139, 250, 0.2);
-    }
-
-    .modal form button:hover {
-      transform: scale(1.02);
-      box-shadow: 0 0 50px rgba(167, 139, 250, 0.4);
-    }
-
-    .modal .error {
-      color: #f87171;
-      font-size: 0.85rem;
-      margin-top: -8px;
-    }
-
-    .modal .success {
-      color: #34d399;
-      font-size: 0.85rem;
-    }
-
-    .modal h3 {
-      font-size: 1.8rem;
-      margin-bottom: 15px;
-      background: linear-gradient(135deg, #fff, #a78bfa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    /* ===== Кабинет ===== */
+    /* ---------- Кабинет ---------- */
     .cabinet {
       display: none;
       padding: 140px 10% 80px;
-      max-width: 720px;
+      max-width: 700px;
       margin: 0 auto;
     }
+    .cabinet.show { display:block; }
+    .cabinet .info-block { background:rgba(255,255,255,0.04); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.1); border-radius:30px; padding:40px; margin-bottom:30px; }
+    .cabinet .info-block .row { display:flex; justify-content:space-between; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+    .cabinet .info-block .row:last-child { border-bottom:none; }
+    .cabinet .info-block .label { opacity:.6; font-weight:300; }
+    .cabinet .info-block .value { font-weight:500; }
+    .cabinet .info-block .value .masked-email { cursor:help; border-bottom:1px dashed rgba(255,255,255,0.3); }
+    .cabinet .actions { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; margin-top:20px; }
+    .cabinet .actions button { padding:14px 32px; border-radius:60px; border:none; font-weight:700; font-size:16px; cursor:pointer; transition:.3s; background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); }
+    .cabinet .actions button:hover { background:#fff; color:#000; transform:scale(1.05); }
+    .cabinet .actions .btn-buy-client { background:linear-gradient(135deg,#fff,#ccc); color:#000; }
+    .cabinet .actions .btn-buy-client:hover { box-shadow:0 0 40px rgba(255,255,255,0.3); }
+    .cabinet .actions .btn-logout { background:#ff6b6b; border-color:#ff6b6b; }
+    .cabinet .actions .btn-logout:hover { background:#ff4757; color:#fff; }
 
-    .cabinet.show {
-      display: block;
-      animation: fadeInUp 0.6s ease;
+    /* ---------- Анимации ---------- */
+    @keyframes glitch { 0%,100% { text-shadow:0 0 10px #fff,0 0 30px #fff; } 20% { transform:translateX(2px); } 21% { transform:translateX(-2px); } 40% { filter:blur(2px); } 60% { transform:rotate(.3deg); } 80% { letter-spacing:14px; } }
+    .floating { position:absolute; border:1px solid rgba(255,255,255,0.12); border-radius:50%; animation:float linear infinite; pointer-events:none; }
+    @keyframes float { from { transform:translateY(120vh) rotate(0); } to { transform:translateY(-150vh) rotate(360deg); } }
+
+    /* ---------- Адаптивность ---------- */
+    @media (max-width:768px) {
+      nav { padding:16px 6%; flex-direction:column; align-items:center; }
+      .nav-links { gap:20px; justify-content:center; }
+      h1 { font-size:48px; letter-spacing:4px; }
+      .subtitle { font-size:16px; }
+      .btn-primary { padding:16px 40px; font-size:16px; }
+      section { padding:80px 6% 60px; }
+      .section-title { font-size:34px; }
+      .products { grid-template-columns:1fr; }
+      .product-card { padding:25px 15px; }
+      .product-card .price-display { font-size:32px; }
+      .payment-method { padding:10px 20px; font-size:16px; }
+      .payment-method i { font-size:22px; }
+      .discord-link { font-size:18px; padding:14px 30px; }
+      .discord-link i { font-size:30px; }
+      footer { padding:60px 6%; font-size:14px; }
+      .cabinet { padding:120px 6% 60px; }
     }
-
-    .cabinet .info-block {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 40px;
-      padding: 45px 40px;
-      margin-bottom: 35px;
-    }
-
-    .cabinet .info-block .row {
-      display: flex;
-      justify-content: space-between;
-      padding: 16px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    }
-
-    .cabinet .info-block .row:last-child {
-      border-bottom: none;
-    }
-
-    .cabinet .info-block .label {
-      opacity: 0.5;
-      font-weight: 400;
-    }
-
-    .cabinet .info-block .value {
-      font-weight: 600;
-      color: #fff;
-    }
-
-    .cabinet .info-block .value .masked-email {
-      cursor: help;
-      border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
-    }
-
-    .cabinet .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      justify-content: center;
-      margin-top: 20px;
-    }
-
-    .cabinet .actions button {
-      padding: 14px 32px;
-      border-radius: 60px;
-      border: none;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      background: rgba(255, 255, 255, 0.06);
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .cabinet .actions button:hover {
-      background: rgba(255, 255, 255, 0.12);
-      transform: scale(1.04);
-    }
-
-    .cabinet .actions .btn-buy-client {
-      background: linear-gradient(135deg, #a78bfa, #7c3aed);
-      border: none;
-      color: #fff;
-      box-shadow: 0 0 30px rgba(167, 139, 250, 0.2);
-    }
-
-    .cabinet .actions .btn-buy-client:hover {
-      box-shadow: 0 0 50px rgba(167, 139, 250, 0.4);
-    }
-
-    .cabinet .actions .btn-logout {
-      background: rgba(239, 68, 68, 0.15);
-      border-color: rgba(239, 68, 68, 0.2);
-      color: #f87171;
-    }
-
-    .cabinet .actions .btn-logout:hover {
-      background: rgba(239, 68, 68, 0.25);
-    }
-
-    /* ===== Анимация глитча ===== */
-    @keyframes glitch {
-      0%,
-      100% {
-        text-shadow: 0 0 10px rgba(167, 139, 250, 0.5), 0 0 40px rgba(167, 139, 250, 0.2);
-      }
-      20% {
-        transform: translateX(3px) skewX(-1deg);
-      }
-      21% {
-        transform: translateX(-3px) skewX(1deg);
-      }
-      40% {
-        filter: blur(1px);
-      }
-      60% {
-        transform: rotate(0.5deg);
-      }
-      80% {
-        letter-spacing: 12px;
-      }
-    }
-
-    /* ===== Плавающие круги ===== */
-    .floating {
-      position: absolute;
-      border: 1px solid rgba(167, 139, 250, 0.08);
-      border-radius: 50%;
-      animation: float linear infinite;
-      pointer-events: none;
-    }
-
-    @keyframes float {
-      from {
-        transform: translateY(120vh) rotate(0deg);
-      }
-      to {
-        transform: translateY(-150vh) rotate(720deg);
-      }
-    }
-
-    /* ===== Адаптивность ===== */
-    @media (max-width: 768px) {
-      nav {
-        padding: 16px 6%;
-        flex-direction: column;
-        gap: 12px;
-      }
-      .nav-links {
-        gap: 20px;
-        justify-content: center;
-      }
-      .nav-links a {
-        font-size: 14px;
-      }
-      .nav-links .auth-link {
-        padding: 6px 20px;
-        font-size: 13px;
-      }
-      .section-title {
-        font-size: 2.2rem;
-      }
-      .products {
-        grid-template-columns: 1fr;
-        gap: 30px;
-      }
-      .product-card {
-        padding: 30px 20px;
-      }
-      .modal {
-        padding: 30px 25px;
-      }
-      .cabinet {
-        padding: 120px 6% 60px;
-      }
-      .cabinet .info-block {
-        padding: 25px 20px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .nav-links a {
-        font-size: 12px;
-      }
-      .product-card .day-btn {
-        font-size: 11px;
-        padding: 4px 10px;
-      }
-      .product-card .price-display {
-        font-size: 2.2rem;
-      }
-      .btn-primary {
-        padding: 14px 40px;
-        font-size: 1rem;
-      }
-      .discord-link {
-        font-size: 1.1rem;
-        padding: 14px 30px;
-      }
+    @media (max-width:480px) {
+      .nav-links a { font-size:14px; }
+      .product-card .day-btn { padding:6px 12px; font-size:12px; }
+      .product-card .btn-buy { max-width:100%; }
+      .modal { padding:25px; }
     }
   </style>
 </head>
@@ -796,9 +291,9 @@
   <!-- Основной контент -->
   <div id="mainContent">
     <header>
-      <h1 class="animate-on-load">PODIUM.GG</h1>
-      <div class="subtitle animate-on-load" style="animation-delay:0.2s;">PREMIUM DLC EXPERIENCE</div>
-      <button class="btn-primary animate-on-load" style="animation-delay:0.4s;" onclick="document.getElementById('plans').scrollIntoView({behavior:'smooth'})">
+      <h1>PODIUM.GG</h1>
+      <div class="subtitle">PREMIUM DLC EXPERIENCE</div>
+      <button class="btn-primary" onclick="document.getElementById('plans').scrollIntoView({behavior:'smooth'})">
         ПОСМОТРЕТЬ ТАРИФЫ
       </button>
     </header>
@@ -807,7 +302,7 @@
       <h2 class="section-title">Выберите продукт</h2>
       <div class="products">
         <!-- макросы -->
-        <div class="product-card animate-on-load" data-product="macros" style="animation-delay:0.1s;">
+        <div class="product-card" data-product="macros">
           <h3>Rustex Remake macros DLC</h3>
           <div class="days-selector">
             <button class="day-btn active" data-days="30" data-price="549">30 дн.</button>
@@ -822,7 +317,7 @@
         </div>
 
         <!-- премиум -->
-        <div class="product-card animate-on-load" data-product="premium" style="animation-delay:0.2s;">
+        <div class="product-card" data-product="premium">
           <h3>Rustex Remake premium DLC</h3>
           <div class="days-selector">
             <button class="day-btn active" data-days="30" data-price="1090">30 дн.</button>
@@ -837,7 +332,7 @@
         </div>
 
         <!-- сброс HWID -->
-        <div class="product-card animate-on-load" data-product="hwid" style="animation-delay:0.3s;">
+        <div class="product-card" data-product="hwid">
           <h3>Reset HWID</h3>
           <div class="price-display">119 <small>₽</small></div>
           <div class="payment-method"><i class="fas fa-coins"></i> FunPay</div>
@@ -906,24 +401,24 @@
     <div class="modal">
       <h3>Подтверждение email</h3>
       <p>На ваш email отправлен код подтверждения. Введите его ниже.</p>
-      <p style="color: #fbbf24; font-size: 0.9rem; margin: 8px 0;">(Демо-код также показан на экране: <span id="verifyCodeDisplay" style="font-weight:bold;font-size:1.2rem;"></span>)</p>
+      <p style="color: #ffb347; font-size: 14px; margin: 5px 0;">(Демо-код также показан на экране: <span id="verifyCodeDisplay" style="font-weight:bold;font-size:18px;"></span>)</p>
       <form id="verifyForm">
         <input type="text" placeholder="Код подтверждения" id="verifyCode" maxlength="6" required />
         <div class="error" id="verifyError"></div>
         <button type="submit">Подтвердить</button>
       </form>
-      <p style="margin-top:12px;font-size:0.8rem;opacity:0.4;">Если письмо не пришло, проверьте спам или повторите регистрацию.</p>
+      <p style="margin-top:10px;font-size:12px;opacity:.5;">Если письмо не пришло, проверьте спам или повторите регистрацию.</p>
     </div>
   </div>
 
   <script>
     // ============================================================
-    // ⚙️ НАСТРОЙКА EMAILJS (ЗАМЕНИТЕ SERVICE_ID И TEMPLATE_ID)
+    // ⚙️ НАСТРОЙКА EMAILJS (ЗАМЕНИТЕ НА СВОИ ДАННЫЕ)
     // ============================================================
     const EMAILJS_CONFIG = {
-      publicKey: 'OOo-5hbLUAC1aAZeb',
-      serviceID: 'service_abc123',   // <--- ЗАМЕНИТЕ НА ВАШ
-      templateID: 'template_xyz789'  // <--- ЗАМЕНИТЕ НА ВАШ
+      publicKey: 'OOo-5hbLUAC1aAZeb',    // Получить в EmailJS
+      serviceID: 'service_xxxxx',    // ID сервиса (например, 'service_abc123')
+      templateID: 'template_xxxxx'   // ID шаблона (например, 'template_xyz789')
     };
 
     // Инициализация EmailJS (если ключи не пустые)
@@ -948,24 +443,21 @@
     }
     resize();
     window.addEventListener('resize', resize);
-
     const stars = [];
-    for (let i = 0; i < 300; i++) {
+    for (let i = 0; i < 250; i++) {
       stars.push({
         x: Math.random() * c.width,
         y: Math.random() * c.height,
-        r: Math.random() * 2.5 + 0.5,
-        v: Math.random() * 0.4 + 0.1,
-        alpha: Math.random() * 0.8 + 0.2
+        r: Math.random() * 2,
+        v: Math.random() * 0.5 + 0.2
       });
     }
-
     function draw() {
       ctx.clearRect(0, 0, c.width, c.height);
       for (const s of stars) {
         ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${s.alpha})`;
+        ctx.arc(s.x, s.y, s.r, 0, 7);
+        ctx.fillStyle = '#fff';
         ctx.fill();
         s.y += s.v;
         if (s.y > c.height) {
@@ -977,15 +469,15 @@
     }
     draw();
 
-    for (let i = 0; i < 45; i++) {
+    for (let i = 0; i < 35; i++) {
       const d = document.createElement('div');
       d.className = 'floating';
-      const s = Math.random() * 280 + 40;
+      const s = Math.random() * 220 + 40;
       d.style.width = s + 'px';
       d.style.height = s + 'px';
       d.style.left = Math.random() * 100 + 'vw';
-      d.style.animationDuration = 15 + Math.random() * 30 + 's';
-      d.style.opacity = Math.random() * 0.12 + 0.03;
+      d.style.animationDuration = 10 + Math.random() * 20 + 's';
+      d.style.opacity = Math.random() * 0.2;
       document.body.appendChild(d);
     }
 
@@ -1206,6 +698,7 @@
         return;
       }
 
+      // Создаём пользователя (не подтверждён)
       const newUser = {
         uid: generateUid(),
         email: email,
@@ -1219,7 +712,7 @@
       verifyCodeDisplay.textContent = code;
       pendingVerification = { user: newUser, code: code };
 
-      // Отправка письма через EmailJS
+      // Отправка письма через EmailJS (если настроено)
       if (EMAILJS_CONFIG.publicKey && EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_KEY') {
         try {
           const templateParams = {
@@ -1233,11 +726,13 @@
         } catch (err) {
           console.warn('⚠️ Ошибка отправки email:', err);
           regError.textContent = 'Не удалось отправить письмо, но код показан на экране.';
+          // не прерываем процесс, пользователь может ввести код вручную
         }
       } else {
         console.warn('⚠️ EmailJS не настроен, код только на экране.');
       }
 
+      // Открываем окно верификации
       authModal.classList.remove('show');
       verifyModal.classList.add('show');
       verifyCodeInput.value = '';
@@ -1262,7 +757,7 @@
         verifyModal.classList.remove('show');
         pendingVerification = null;
         updateUI();
-        hideCabinet();
+        hideCabinet(); // остаёмся на главной
         alert('✅ Регистрация успешна! Добро пожаловать.');
       } else {
         verifyError.textContent = 'Неверный код подтверждения.';
@@ -1302,7 +797,7 @@
       localStorage.removeItem('podium_currentUser');
       updateUI();
       hideCabinet();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({top:0, behavior:'smooth'});
     });
 
     // Кнопка "Скачать лаунчер"
@@ -1313,19 +808,19 @@
     // "Купить клиент" – скрыть кабинет и скролл к тарифам
     buyClientBtn.addEventListener('click', () => {
       hideCabinet();
-      document.getElementById('plans').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('plans').scrollIntoView({behavior:'smooth'});
     });
 
     // Навигация
     navPlans.addEventListener('click', (e) => {
       e.preventDefault();
       if (currentUser) hideCabinet();
-      document.getElementById('plans').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('plans').scrollIntoView({behavior:'smooth'});
     });
     navSupport.addEventListener('click', (e) => {
       e.preventDefault();
       if (currentUser) hideCabinet();
-      document.getElementById('support').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('support').scrollIntoView({behavior:'smooth'});
     });
 
     // Инициализация
@@ -1337,7 +832,7 @@
       hideCabinet();
     }
 
-    console.log('✅ Сайт обновлён с улучшенным дизайном и анимациями.');
+    console.log('✅ Сайт обновлён: EmailJS интегрирован, всё адаптировано под GitHub Pages.');
   </script>
 </body>
 </html>
