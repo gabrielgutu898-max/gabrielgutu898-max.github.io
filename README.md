@@ -1,42 +1,19 @@
-
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Podium.gg — Premium DLC</title>
-
-  <!-- Шрифты и иконки (CDN) -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-
-  <!-- EmailJS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
   <style>
-    /* ---------- Глобальные сбросы ---------- */
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
     body { background:#000; overflow-x:hidden; color:#fff; }
     canvas { position:fixed; inset:0; z-index:-2; }
     #noise { position:fixed; inset:0; pointer-events:none; opacity:.06; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"); mix-blend-mode:overlay; z-index:-1; }
     .cursorGlow { position:fixed; width:500px; height:500px; border-radius:50%; pointer-events:none; background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%); transform:translate(-50%,-50%); z-index:-1; }
-
-    /* ---------- Навигация ---------- */
-    nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 20px 10%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      z-index: 100;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+    nav { position:fixed; top:0; left:0; right:0; padding:20px 10%; display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.6); backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,255,255,0.08); z-index:100; flex-wrap:wrap; gap:10px; }
     .logo { font-size:24px; font-weight:900; letter-spacing:3px; background:linear-gradient(135deg,#fff,#aaa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
     .nav-links { display:flex; gap:30px; align-items:center; flex-wrap:wrap; }
     .nav-links a { color:rgba(255,255,255,0.7); text-decoration:none; font-weight:500; font-size:16px; transition:.3s; position:relative; cursor:pointer; }
@@ -44,168 +21,39 @@
     .nav-links a:hover { color:#fff; }
     .nav-links a:hover::after { width:100%; }
     .nav-links .auth-link { cursor:pointer; }
-
-    /* ---------- Хедер ---------- */
     header { height:100vh; display:flex; justify-content:center; align-items:center; flex-direction:column; text-align:center; position:relative; padding-top:80px; }
     h1 { font-size:80px; font-weight:900; letter-spacing:8px; animation:glitch 5s infinite; }
     .subtitle { margin-top:20px; opacity:.75; font-size:20px; }
     .btn-primary { margin-top:50px; padding:20px 60px; font-size:20px; border:none; cursor:pointer; background:#fff; color:#000; font-weight:700; border-radius:50px; transition:.3s; }
     .btn-primary:hover { transform:scale(1.1); box-shadow:0 0 80px rgba(255,255,255,0.7); }
-
-    /* ---------- Секции ---------- */
-    section { padding:120px 10% 80px; scroll-margin-top: 100px; }
+    section { padding:120px 10% 80px; scroll-margin-top:100px; }
     .section-title { font-size:50px; font-weight:900; margin-bottom:50px; text-align:center; }
-
-    /* ---------- Продукты (тарифы) ---------- */
-    .products {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 30px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .product-card {
-      background: rgba(255,255,255,0.04);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 30px;
-      padding: 35px 25px;
-      text-align: center;
-      transition: .4s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-    }
-    .product-card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 0 50px rgba(255,255,255,0.15);
-      border-color: rgba(255,255,255,0.3);
-    }
-    .product-card h3 {
-      font-size: 24px;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-    .product-card .days-selector {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-    }
-    .product-card .day-btn {
-      padding: 8px 16px;
-      border-radius: 30px;
-      border: 1px solid rgba(255,255,255,0.2);
-      background: transparent;
-      color: rgba(255,255,255,0.7);
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-      transition: .3s;
-    }
+    .products { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:30px; max-width:1200px; margin:0 auto; }
+    .product-card { background:rgba(255,255,255,0.04); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.1); border-radius:30px; padding:35px 25px; text-align:center; transition:.4s; display:flex; flex-direction:column; align-items:center; gap:20px; }
+    .product-card:hover { transform:translateY(-10px); box-shadow:0 0 50px rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.3); }
+    .product-card h3 { font-size:24px; font-weight:700; letter-spacing:1px; }
+    .product-card .days-selector { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; }
+    .product-card .day-btn { padding:8px 16px; border-radius:30px; border:1px solid rgba(255,255,255,0.2); background:transparent; color:rgba(255,255,255,0.7); font-weight:600; font-size:13px; cursor:pointer; transition:.3s; }
     .product-card .day-btn:hover { border-color:#fff; color:#fff; background:rgba(255,255,255,0.05); }
     .product-card .day-btn.active { background:#fff; color:#000; border-color:#fff; box-shadow:0 0 20px rgba(255,255,255,0.3); }
-    .product-card .price-display {
-      font-size: 38px;
-      font-weight: 900;
-      letter-spacing: 1px;
-    }
-    .product-card .price-display small {
-      font-size: 20px;
-      font-weight: 300;
-      opacity: .6;
-    }
-
-    /* ---------- Способ оплаты (FunPay) ---------- */
-    .payment-method {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 30px;
-      border-radius: 60px;
-      border: 1px solid rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.05);
-      color: #fff;
-      font-weight: 600;
-      font-size: 18px;
-      cursor: pointer;
-      transition: .3s;
-      user-select: none;
-    }
-    .payment-method:hover {
-      border-color: rgba(255,255,255,0.5);
-      background: rgba(255,255,255,0.08);
-    }
-    .payment-method.active {
-      border-color: #fff;
-      background: rgba(255,255,255,0.15);
-      box-shadow: 0 0 20px rgba(255,255,255,0.2);
-    }
-    .payment-method i {
-      font-size: 28px;
-      color: #ffb347;
-    }
-
-    .product-card .btn-buy {
-      padding: 14px 40px;
-      border-radius: 60px;
-      border: none;
-      font-weight: 700;
-      font-size: 18px;
-      cursor: pointer;
-      transition: .3s;
-      background: #444;
-      color: #888;
-      pointer-events: none;
-      opacity: .6;
-      width: 100%;
-      max-width: 200px;
-    }
-    .product-card .btn-buy.active {
-      background: linear-gradient(135deg, #fff, #ccc);
-      color: #000;
-      pointer-events: auto;
-      opacity: 1;
-    }
-    .product-card .btn-buy.active:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 40px rgba(255,255,255,0.3);
-    }
-
-    /* ---------- Поддержка ---------- */
+    .product-card .price-display { font-size:38px; font-weight:900; letter-spacing:1px; }
+    .product-card .price-display small { font-size:20px; font-weight:300; opacity:.6; }
+    .payment-method { display:inline-flex; align-items:center; gap:12px; padding:12px 30px; border-radius:60px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.05); color:#fff; font-weight:600; font-size:18px; cursor:pointer; transition:.3s; user-select:none; }
+    .payment-method:hover { border-color:rgba(255,255,255,0.5); background:rgba(255,255,255,0.08); }
+    .payment-method.active { border-color:#fff; background:rgba(255,255,255,0.15); box-shadow:0 0 20px rgba(255,255,255,0.2); }
+    .payment-method i { font-size:28px; color:#ffb347; }
+    .product-card .btn-buy { padding:14px 40px; border-radius:60px; border:none; font-weight:700; font-size:18px; cursor:pointer; transition:.3s; background:#444; color:#888; pointer-events:none; opacity:.6; width:100%; max-width:200px; }
+    .product-card .btn-buy.active { background:linear-gradient(135deg,#fff,#ccc); color:#000; pointer-events:auto; opacity:1; }
+    .product-card .btn-buy.active:hover { transform:scale(1.05); box-shadow:0 0 40px rgba(255,255,255,0.3); }
     .support-wrapper { display:flex; flex-direction:column; align-items:center; gap:30px; }
     .support-wrapper p { font-size:20px; opacity:.7; max-width:500px; text-align:center; }
     .discord-link { display:inline-flex; align-items:center; gap:16px; padding:18px 44px; border-radius:60px; background:#5865f2; color:#fff; font-size:24px; font-weight:700; text-decoration:none; transition:.3s; box-shadow:0 0 40px rgba(88,101,242,0.3); }
     .discord-link i { font-size:40px; }
     .discord-link:hover { transform:scale(1.08); box-shadow:0 0 80px rgba(88,101,242,0.6); }
-
-    /* ---------- Футер ---------- */
     footer { padding:80px 10%; text-align:center; opacity:.6; border-top:1px solid rgba(255,255,255,0.05); font-weight:300; letter-spacing:1px; }
-
-    /* ---------- Модальные окна ---------- */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(8px);
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-    }
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(8px); justify-content:center; align-items:center; z-index:999; }
     .modal-overlay.show { display:flex; }
-    .modal {
-      background: #1a1a1a;
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 40px;
-      padding: 40px;
-      max-width: 440px;
-      width: 90%;
-      text-align: center;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
+    .modal { background:#1a1a1a; border:1px solid rgba(255,255,255,0.15); border-radius:40px; padding:40px; max-width:440px; width:90%; text-align:center; max-height:90vh; overflow-y:auto; }
     .modal .tabs { display:flex; gap:20px; justify-content:center; margin-bottom:30px; }
     .modal .tabs span { font-size:20px; font-weight:700; opacity:.5; cursor:pointer; transition:.3s; }
     .modal .tabs span.active { opacity:1; border-bottom:2px solid #fff; padding-bottom:6px; }
@@ -214,16 +62,9 @@
     .modal form input:focus { border-color:#fff; }
     .modal form button { padding:14px; border-radius:30px; border:none; background:#fff; color:#000; font-weight:700; font-size:18px; cursor:pointer; transition:.3s; }
     .modal form button:hover { transform:scale(1.02); box-shadow:0 0 30px rgba(255,255,255,0.3); }
-    .modal .error { color:#ff6b6b; font-size:14px; margin-top: -10px; }
+    .modal .error { color:#ff6b6b; font-size:14px; margin-top:-10px; }
     .modal .success { color:#51cf66; font-size:14px; }
-
-    /* ---------- Кабинет ---------- */
-    .cabinet {
-      display: none;
-      padding: 140px 10% 80px;
-      max-width: 700px;
-      margin: 0 auto;
-    }
+    .cabinet { display:none; padding:140px 10% 80px; max-width:700px; margin:0 auto; }
     .cabinet.show { display:block; }
     .cabinet .info-block { background:rgba(255,255,255,0.04); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.1); border-radius:30px; padding:40px; margin-bottom:30px; }
     .cabinet .info-block .row { display:flex; justify-content:space-between; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
@@ -238,47 +79,17 @@
     .cabinet .actions .btn-buy-client:hover { box-shadow:0 0 40px rgba(255,255,255,0.3); }
     .cabinet .actions .btn-logout { background:#ff6b6b; border-color:#ff6b6b; }
     .cabinet .actions .btn-logout:hover { background:#ff4757; color:#fff; }
-
-    /* ---------- Анимации ---------- */
     @keyframes glitch { 0%,100% { text-shadow:0 0 10px #fff,0 0 30px #fff; } 20% { transform:translateX(2px); } 21% { transform:translateX(-2px); } 40% { filter:blur(2px); } 60% { transform:rotate(.3deg); } 80% { letter-spacing:14px; } }
     .floating { position:absolute; border:1px solid rgba(255,255,255,0.12); border-radius:50%; animation:float linear infinite; pointer-events:none; }
     @keyframes float { from { transform:translateY(120vh) rotate(0); } to { transform:translateY(-150vh) rotate(360deg); } }
-
-    /* ---------- Адаптивность ---------- */
-    @media (max-width:768px) {
-      nav { padding:16px 6%; flex-direction:column; align-items:center; }
-      .nav-links { gap:20px; justify-content:center; }
-      h1 { font-size:48px; letter-spacing:4px; }
-      .subtitle { font-size:16px; }
-      .btn-primary { padding:16px 40px; font-size:16px; }
-      section { padding:80px 6% 60px; }
-      .section-title { font-size:34px; }
-      .products { grid-template-columns:1fr; }
-      .product-card { padding:25px 15px; }
-      .product-card .price-display { font-size:32px; }
-      .payment-method { padding:10px 20px; font-size:16px; }
-      .payment-method i { font-size:22px; }
-      .discord-link { font-size:18px; padding:14px 30px; }
-      .discord-link i { font-size:30px; }
-      footer { padding:60px 6%; font-size:14px; }
-      .cabinet { padding:120px 6% 60px; }
-    }
-    @media (max-width:480px) {
-      .nav-links a { font-size:14px; }
-      .product-card .day-btn { padding:6px 12px; font-size:12px; }
-      .product-card .btn-buy { max-width:100%; }
-      .modal { padding:25px; }
-    }
+    @media (max-width:768px) { nav { padding:16px 6%; flex-direction:column; align-items:center; } .nav-links { gap:20px; justify-content:center; } h1 { font-size:48px; letter-spacing:4px; } .subtitle { font-size:16px; } .btn-primary { padding:16px 40px; font-size:16px; } section { padding:80px 6% 60px; } .section-title { font-size:34px; } .products { grid-template-columns:1fr; } .product-card { padding:25px 15px; } .product-card .price-display { font-size:32px; } .payment-method { padding:10px 20px; font-size:16px; } .payment-method i { font-size:22px; } .discord-link { font-size:18px; padding:14px 30px; } .discord-link i { font-size:30px; } footer { padding:60px 6%; font-size:14px; } .cabinet { padding:120px 6% 60px; } }
+    @media (max-width:480px) { .nav-links a { font-size:14px; } .product-card .day-btn { padding:6px 12px; font-size:12px; } .product-card .btn-buy { max-width:100%; } .modal { padding:25px; } }
   </style>
 </head>
 <body>
-
-  <!-- Фон -->
   <canvas id="bg"></canvas>
   <div id="noise"></div>
   <div class="cursorGlow"></div>
-
-  <!-- Навигация -->
   <nav>
     <div class="logo">PODIUM.GG</div>
     <div class="nav-links">
@@ -287,21 +98,15 @@
       <span class="auth-link" id="authLink">Войти</span>
     </div>
   </nav>
-
-  <!-- Основной контент -->
   <div id="mainContent">
     <header>
       <h1>PODIUM.GG</h1>
       <div class="subtitle">PREMIUM DLC EXPERIENCE</div>
-      <button class="btn-primary" onclick="document.getElementById('plans').scrollIntoView({behavior:'smooth'})">
-        ПОСМОТРЕТЬ ТАРИФЫ
-      </button>
+      <button class="btn-primary" onclick="document.getElementById('plans').scrollIntoView({behavior:'smooth'})">ПОСМОТРЕТЬ ТАРИФЫ</button>
     </header>
-
     <section id="plans">
       <h2 class="section-title">Выберите продукт</h2>
       <div class="products">
-        <!-- макросы -->
         <div class="product-card" data-product="macros">
           <h3>Rustex Remake macros DLC</h3>
           <div class="days-selector">
@@ -315,8 +120,6 @@
           <div class="payment-method"><i class="fas fa-coins"></i> FunPay</div>
           <button class="btn-buy product-buy" disabled>Купить</button>
         </div>
-
-        <!-- премиум -->
         <div class="product-card" data-product="premium">
           <h3>Rustex Remake premium DLC</h3>
           <div class="days-selector">
@@ -330,8 +133,6 @@
           <div class="payment-method"><i class="fas fa-coins"></i> FunPay</div>
           <button class="btn-buy product-buy" disabled>Купить</button>
         </div>
-
-        <!-- сброс HWID -->
         <div class="product-card" data-product="hwid">
           <h3>Reset HWID</h3>
           <div class="price-display">119 <small>₽</small></div>
@@ -340,23 +141,15 @@
         </div>
       </div>
     </section>
-
     <section id="support">
       <h2 class="section-title">Поддержка</h2>
       <div class="support-wrapper">
         <p>Присоединяйтесь к нашему Discord-серверу — там мы всегда на связи</p>
-        <a href="https://discord.gg/sUNGPKadB" target="_blank" class="discord-link">
-          <i class="fab fa-discord"></i> Discord
-        </a>
+        <a href="https://discord.gg/sUNGPKadB" target="_blank" class="discord-link"><i class="fab fa-discord"></i> Discord</a>
       </div>
     </section>
-
-    <footer>
-      © 2026 Podium.gg Все права защищены.
-    </footer>
+    <footer>© 2026 Podium.gg Все права защищены.</footer>
   </div>
-
-  <!-- Кабинет -->
   <div class="cabinet" id="cabinet">
     <div class="info-block">
       <div class="row"><span class="label">UID</span><span class="value" id="cabinetUid">—</span></div>
@@ -371,8 +164,6 @@
       <button class="btn-logout" id="logoutBtn">Выйти</button>
     </div>
   </div>
-
-  <!-- Модальное окно входа/регистрации -->
   <div class="modal-overlay" id="authModal">
     <div class="modal">
       <div class="tabs">
@@ -395,8 +186,6 @@
       </form>
     </div>
   </div>
-
-  <!-- Модальное окно подтверждения email -->
   <div class="modal-overlay" id="verifyModal">
     <div class="modal">
       <h3>Подтверждение email</h3>
@@ -410,31 +199,20 @@
       <p style="margin-top:10px;font-size:12px;opacity:.5;">Если письмо не пришло, проверьте спам или повторите регистрацию.</p>
     </div>
   </div>
-
   <script>
-    // ============================================================
-    // ⚙️ НАСТРОЙКА EMAILJS (ЗАМЕНИТЕ НА СВОИ ДАННЫЕ)
-    // ============================================================
     const EMAILJS_CONFIG = {
-      publicKey: 'OOo-5hbLUAC1aAZeb',    // Получить в EmailJS
-      serviceID: 'service_xxxxx',    // ID сервиса (например, 'service_abc123')
-      templateID: 'template_xxxxx'   // ID шаблона (например, 'template_xyz789')
+      publicKey: 'OOo-5hbLUAC1aAZeb',
+      serviceID: 'service_xxxxx',
+      templateID: 'template_xxxxx'
     };
-
-    // Инициализация EmailJS (если ключи не пустые)
     if (EMAILJS_CONFIG.publicKey && EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_KEY') {
       emailjs.init(EMAILJS_CONFIG.publicKey);
     }
-
-    // ============================================================
-    // 1. Фоновые эффекты
-    // ============================================================
     const glow = document.querySelector('.cursorGlow');
     window.addEventListener('mousemove', e => {
       glow.style.left = e.clientX + 'px';
       glow.style.top = e.clientY + 'px';
     });
-
     const c = document.getElementById('bg');
     const ctx = c.getContext('2d');
     function resize() {
@@ -468,7 +246,6 @@
       requestAnimationFrame(draw);
     }
     draw();
-
     for (let i = 0; i < 35; i++) {
       const d = document.createElement('div');
       d.className = 'floating';
@@ -480,19 +257,13 @@
       d.style.opacity = Math.random() * 0.2;
       document.body.appendChild(d);
     }
-
-    // ============================================================
-    // 2. Логика продуктов (тарифы + оплата)
-    // ============================================================
     const FUNPAY_URL = 'https://funpay.com/users/20739931/';
-
     document.querySelectorAll('.product-card').forEach(card => {
       const productType = card.dataset.product;
       const daysBtns = card.querySelectorAll('.day-btn');
       const priceDisplay = card.querySelector('.price-display');
       const paymentMethod = card.querySelector('.payment-method');
       const buyBtn = card.querySelector('.product-buy');
-
       function updateBuyButton() {
         const dayActive = card.querySelector('.day-btn.active');
         const paymentActive = paymentMethod.classList.contains('active');
@@ -505,7 +276,6 @@
           buyBtn.classList.remove('active');
         }
       }
-
       daysBtns.forEach(btn => {
         btn.addEventListener('click', () => {
           daysBtns.forEach(b => b.classList.remove('active'));
@@ -515,19 +285,15 @@
           updateBuyButton();
         });
       });
-
       paymentMethod.addEventListener('click', () => {
         paymentMethod.classList.toggle('active');
         updateBuyButton();
       });
-
       buyBtn.addEventListener('click', () => {
         if (!buyBtn.disabled) {
           window.open(FUNPAY_URL, '_blank');
         }
       });
-
-      // инициализация
       const activeDay = card.querySelector('.day-btn.active');
       if (activeDay) {
         priceDisplay.innerHTML = `${activeDay.dataset.price} <small>₽</small>`;
@@ -535,14 +301,9 @@
       buyBtn.disabled = true;
       buyBtn.classList.remove('active');
     });
-
-    // ============================================================
-    // 3. Регистрация / вход / кабинет + EmailJS
-    // ============================================================
     let users = JSON.parse(localStorage.getItem('podium_users')) || [];
     let currentUser = JSON.parse(localStorage.getItem('podium_currentUser')) || null;
     let pendingVerification = null;
-
     const authLink = document.getElementById('authLink');
     const authModal = document.getElementById('authModal');
     const loginForm = document.getElementById('loginForm');
@@ -555,7 +316,6 @@
     const tabs = document.querySelectorAll('.tabs span');
     const loginError = document.getElementById('loginError');
     const regError = document.getElementById('regError');
-
     const cabinet = document.getElementById('cabinet');
     const mainContent = document.getElementById('mainContent');
     const cabinetUid = document.getElementById('cabinetUid');
@@ -566,17 +326,14 @@
     const logoutBtn = document.getElementById('logoutBtn');
     const downloadLauncher = document.getElementById('downloadLauncher');
     const buyClientBtn = document.getElementById('buyClientBtn');
-
     const navPlans = document.getElementById('navPlans');
     const navSupport = document.getElementById('navSupport');
-
     function maskEmail(email) {
       if (!email) return '***';
       const at = email.indexOf('@');
       if (at <= 1) return '***' + email.substring(at);
       return email[0] + '***' + email.substring(at);
     }
-
     function fillCabinetData() {
       if (!currentUser) return;
       cabinetUid.textContent = currentUser.uid || '—';
@@ -596,19 +353,16 @@
         cabinetSubscription.textContent = 'Не оформлена';
       }
     }
-
     function showCabinet() {
       if (!currentUser) return;
       mainContent.style.display = 'none';
       cabinet.classList.add('show');
       fillCabinetData();
     }
-
     function hideCabinet() {
       mainContent.style.display = 'block';
       cabinet.classList.remove('show');
     }
-
     function updateUI() {
       if (currentUser) {
         authLink.textContent = 'Кабинет';
@@ -617,13 +371,10 @@
         hideCabinet();
       }
     }
-
     function saveUsers() { localStorage.setItem('podium_users', JSON.stringify(users)); }
     function saveCurrentUser() { localStorage.setItem('podium_currentUser', JSON.stringify(currentUser)); }
     function generateUid() { return 'UID-' + Math.random().toString(36).substring(2, 10).toUpperCase(); }
     function generateVerifyCode() { return Math.floor(100000 + Math.random() * 900000).toString(); }
-
-    // Переключение вкладок
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
         tabs.forEach(t => t.classList.remove('active'));
@@ -640,8 +391,6 @@
         regError.textContent = '';
       });
     });
-
-    // Открытие модалки входа
     authLink.addEventListener('click', (e) => {
       e.preventDefault();
       if (currentUser) {
@@ -656,8 +405,6 @@
       loginError.textContent = '';
       regError.textContent = '';
     });
-
-    // Закрытие модалок по клику вне
     authModal.addEventListener('click', (e) => {
       if (e.target === authModal) authModal.classList.remove('show');
     });
@@ -667,8 +414,6 @@
         pendingVerification = null;
       }
     });
-
-    // === Регистрация ===
     registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('regEmail').value.trim();
@@ -676,7 +421,6 @@
       const password = document.getElementById('regPassword').value;
       const confirm = document.getElementById('regPasswordConfirm').value;
       regError.textContent = '';
-
       if (!email || !login || !password || !confirm) {
         regError.textContent = 'Заполните все поля.';
         return;
@@ -697,8 +441,6 @@
         regError.textContent = 'Пользователь с таким email уже существует.';
         return;
       }
-
-      // Создаём пользователя (не подтверждён)
       const newUser = {
         uid: generateUid(),
         email: email,
@@ -711,8 +453,6 @@
       const code = generateVerifyCode();
       verifyCodeDisplay.textContent = code;
       pendingVerification = { user: newUser, code: code };
-
-      // Отправка письма через EmailJS (если настроено)
       if (EMAILJS_CONFIG.publicKey && EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_KEY') {
         try {
           const templateParams = {
@@ -726,20 +466,15 @@
         } catch (err) {
           console.warn('⚠️ Ошибка отправки email:', err);
           regError.textContent = 'Не удалось отправить письмо, но код показан на экране.';
-          // не прерываем процесс, пользователь может ввести код вручную
         }
       } else {
         console.warn('⚠️ EmailJS не настроен, код только на экране.');
       }
-
-      // Открываем окно верификации
       authModal.classList.remove('show');
       verifyModal.classList.add('show');
       verifyCodeInput.value = '';
       verifyError.textContent = '';
     });
-
-    // === Подтверждение email ===
     verifyForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const inputCode = verifyCodeInput.value.trim();
@@ -757,20 +492,17 @@
         verifyModal.classList.remove('show');
         pendingVerification = null;
         updateUI();
-        hideCabinet(); // остаёмся на главной
+        hideCabinet();
         alert('✅ Регистрация успешна! Добро пожаловать.');
       } else {
         verifyError.textContent = 'Неверный код подтверждения.';
       }
     });
-
-    // === Вход ===
     loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const login = document.getElementById('loginLogin').value.trim();
       const password = document.getElementById('loginPassword').value;
       loginError.textContent = '';
-
       if (!login || !password) {
         loginError.textContent = 'Введите логин и пароль.';
         return;
@@ -790,8 +522,6 @@
       updateUI();
       hideCabinet();
     });
-
-    // Выход
     logoutBtn.addEventListener('click', () => {
       currentUser = null;
       localStorage.removeItem('podium_currentUser');
@@ -799,19 +529,13 @@
       hideCabinet();
       window.scrollTo({top:0, behavior:'smooth'});
     });
-
-    // Кнопка "Скачать лаунчер"
     downloadLauncher.addEventListener('click', () => {
       alert('Скачивание лаунчера начнется... (демо)');
     });
-
-    // "Купить клиент" – скрыть кабинет и скролл к тарифам
     buyClientBtn.addEventListener('click', () => {
       hideCabinet();
       document.getElementById('plans').scrollIntoView({behavior:'smooth'});
     });
-
-    // Навигация
     navPlans.addEventListener('click', (e) => {
       e.preventDefault();
       if (currentUser) hideCabinet();
@@ -822,8 +546,6 @@
       if (currentUser) hideCabinet();
       document.getElementById('support').scrollIntoView({behavior:'smooth'});
     });
-
-    // Инициализация
     if (currentUser) {
       updateUI();
       hideCabinet();
@@ -831,8 +553,7 @@
       updateUI();
       hideCabinet();
     }
-
-    console.log('✅ Сайт обновлён: EmailJS интегрирован, всё адаптировано под GitHub Pages.');
+    console.log;
   </script>
 </body>
 </html>
